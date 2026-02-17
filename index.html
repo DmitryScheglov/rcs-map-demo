@@ -6,78 +6,69 @@
   <title>rcs construction Projects Map (Demo)</title>
 
   <style>
-    body { margin: 0; font-family: Arial, sans-serif; }
-    .topbar { padding: 12px 16px; border-bottom: 1px solid #e5e5e5; }
+    /* Page layout */
+    html, body { height: 100%; margin: 0; font-family: Arial, sans-serif; }
+    .topbar { padding: 12px 16px; border-bottom: 1px solid #e5e5e5; background: #fff; }
 
-    .layout {
-      display: grid;
-      grid-template-columns: 340px 1fr;
-      height: calc(100vh - 49px);
-    }
-
-    #sidebar {
+    /* Two-column layout: left panel + map */
+    .layout { display: flex; height: calc(100vh - 49px); }
+    .sidebar {
+      width: 360px;
+      min-width: 280px;
+      max-width: 420px;
       border-right: 1px solid #e5e5e5;
-      overflow: auto;
-      padding: 12px;
-      box-sizing: border-box;
       background: #fff;
-    }
-
-    #map { height: 100%; width: 100%; }
-
-    .search {
-      width: 100%;
-      padding: 10px 10px;
-      box-sizing: border-box;
-      border: 1px solid #d9d9d9;
-      border-radius: 8px;
-      margin-bottom: 10px;
-      font-size: 14px;
-    }
-
-    .groupTitle {
       display: flex;
-      align-items: center;
-      gap: 8px;
-      font-size: 14px;
-      padding: 6px 0;
-      user-select: none;
+      flex-direction: column;
     }
-
-    details { margin: 6px 0; }
-    summary { cursor: pointer; list-style: none; }
-    summary::-webkit-details-marker { display:none; }
-
-    .count {
-      color: #777;
-      font-size: 12px;
-      margin-left: auto;
+    .sidebar .search {
+      padding: 12px;
+      border-bottom: 1px solid #e5e5e5;
     }
-
+    .sidebar input {
+      width: 100%;
+      box-sizing: border-box;
+      padding: 10px 12px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      outline: none;
+    }
+    .list {
+      overflow: auto;
+      padding: 8px;
+      flex: 1;
+    }
     .item {
-      padding: 6px 8px;
+      padding: 10px 10px;
       border-radius: 8px;
       cursor: pointer;
       display: flex;
-      gap: 8px;
+      gap: 10px;
       align-items: center;
-      font-size: 13px;
     }
-    .item:hover { background: #f3f5f7; }
-
-    .icon {
-      width: 18px;
-      height: 18px;
-      flex: 0 0 auto;
+    .item:hover { background: #f6f6f6; }
+    .dot {
+      width: 10px; height: 10px; border-radius: 50%;
+      background: #666;
+      flex: 0 0 10px;
     }
+    .name { font-size: 14px; line-height: 1.2; color: #111; }
+    .meta { font-size: 12px; color: #666; margin-top: 2px; }
 
+    /* Map container */
+    #map { flex: 1; }
+
+    /* Custom popup wrapper */
     .kml-popup { max-width: 1050px; }
+
+    /* Auto-limit images inside KML popup to fit height */
     .kml-popup img {
       max-width: 100%;
-      max-height: 400px;   /* вот оно: ограничение по высоте */
-      width: auto;
       height: auto;
       display: block;
+
+      /* Key part: limit image height to 400px */
+      max-height: 400px;
       object-fit: contain;
     }
   </style>
@@ -87,335 +78,248 @@
   <div class="topbar">rcs construction — Projects Map (Demo)</div>
 
   <div class="layout">
-    <div id="sidebar">
-      <input id="search" class="search" placeholder="Search location name..." />
-      <div id="tree"></div>
+    <div class="sidebar">
+      <div class="search">
+        <input id="searchBox" type="text" placeholder="Search location name..." />
+      </div>
+      <div id="list" class="list"></div>
     </div>
+
     <div id="map"></div>
   </div>
 
   <script>
-    // 1) Настройки
-    const KML_URL = "./projects.kml"; // файл в репо рядом с index.html
-    // если хочешь raw github ссылку, можно так:
-    // const KML_URL = "https://raw.githubusercontent.com/DmitryScheglov/rcs-map-demo/main/projects.kml";
+    // =========================
+    // 1) CONFIG (edit these)
+    // =========================
 
+    // IMPORTANT:
+    // Put your KML file in the SAME repo folder as index.html
+    // and name it "projects.kml" (recommended).
+    //
+    // Example repo structure:
+    //   /index.html
+    //   /projects.kml
+    //
+    // Then it will be available at:
+    //   https://dmitryscheglov.github.io/rcs-map-demo/projects.kml
+    const KML_URL = "./projects.kml";
+
+    // Default view (Halifax area)
+    const DEFAULT_CENTER = { lat: 44.6488, lng: -63.5752 };
+    const DEFAULT_ZOOM = 6;
+
+    // =========================
+    // 2) GLOBALS
+    // =========================
     let map;
     let infoWindow;
+    let kmlLayer;
 
-    // Хранилища
-    const allMarkers = []; // { marker, name, sector, status, iconUrl, html, visible }
-    const groupIndex = new Map(); // key "sector||status" -> array of marker objects
+    // Local copy of KML placemarks for the left list
+    // Each item: { name, lat, lng, descriptionHtml }
+    let placemarks = [];
 
-    // 2) Инициализация карты
+    // =========================
+    // 3) MAP INIT (called by Google Maps)
+    // =========================
     function initMap() {
+      // Create the map
       map = new google.maps.Map(document.getElementById("map"), {
-        zoom: 6,
-        center: { lat: 44.6488, lng: -63.5752 },
-        mapTypeId: "satellite", // сразу спутник
-        gestureHandling: "greedy"
+        center: DEFAULT_CENTER,
+        zoom: DEFAULT_ZOOM,
+        mapTypeId: google.maps.MapTypeId.SATELLITE, // Start in satellite mode
+        // Optional: show map type control (Map / Satellite buttons)
+        mapTypeControl: true,
       });
 
+      // Create one InfoWindow for all clicks
       infoWindow = new google.maps.InfoWindow({ maxWidth: 1050 });
 
-      loadAndRenderKml();
-      wireSearch();
+      // Load KML as a layer (for icons + styles)
+      kmlLayer = new google.maps.KmlLayer({
+        url: toAbsoluteUrl(KML_URL),  // KML layer needs an absolute URL
+        map: map,
+        preserveViewport: false,
+        suppressInfoWindows: true,    // We'll show our own InfoWindow
+      });
+
+      // When a placemark is clicked on the map, show popup
+      kmlLayer.addListener("click", (event) => {
+        openPopup(event.featureData.name, event.featureData.infoWindowHtml, event.latLng);
+      });
+
+      // Build the left menu by fetching and parsing the KML ourselves
+      // (KmlLayer does NOT provide a list API, so we parse the KML file)
+      fetchAndBuildMenu();
     }
 
-    // 3) Загрузка + парсинг KML (Folder -> Placemark)
-    async function loadAndRenderKml() {
-      const res = await fetch(KML_URL, { cache: "no-store" });
-      if (!res.ok) {
-        alert("Cannot load KML: " + res.status + " " + res.statusText);
+    // =========================
+    // 4) POPUP HELPERS
+    // =========================
+    function openPopup(title, html, position) {
+      // Wrap KML HTML inside our container so CSS can control images
+      const safeHtml = `<div class="kml-popup">${html || ""}</div>`;
+
+      infoWindow.setContent(safeHtml);
+      infoWindow.setPosition(position);
+      infoWindow.open({ map });
+    }
+
+    // =========================
+    // 5) LEFT MENU (fetch + parse KML)
+    // =========================
+    async function fetchAndBuildMenu() {
+      try {
+        // Fetch the KML file from GitHub Pages
+        const res = await fetch(KML_URL, { cache: "no-store" });
+        if (!res.ok) throw new Error("Failed to fetch KML: " + res.status);
+
+        const kmlText = await res.text();
+
+        // Parse XML
+        const parser = new DOMParser();
+        const xml = parser.parseFromString(kmlText, "text/xml");
+
+        // Detect parse errors
+        const parseError = xml.getElementsByTagName("parsererror")[0];
+        if (parseError) throw new Error("KML XML parse error");
+
+        // Collect placemarks
+        placemarks = extractPlacemarks(xml);
+
+        // Render list
+        renderList(placemarks);
+
+        // Hook search
+        const searchBox = document.getElementById("searchBox");
+        searchBox.addEventListener("input", () => {
+          const q = searchBox.value.trim().toLowerCase();
+          const filtered = placemarks.filter(p => (p.name || "").toLowerCase().includes(q));
+          renderList(filtered);
+        });
+
+      } catch (err) {
+        console.error(err);
+        alert(
+          "Menu build failed.\n\n" +
+          "Most common reasons:\n" +
+          "1) projects.kml is not in the repo next to index.html\n" +
+          "2) KML is not public / not reachable by GitHub Pages\n" +
+          "3) The KML file has invalid XML\n\n" +
+          "Check DevTools Console for details."
+        );
+      }
+    }
+
+    function extractPlacemarks(xml) {
+      const result = [];
+      const placemarkNodes = Array.from(xml.getElementsByTagName("Placemark"));
+
+      for (const pm of placemarkNodes) {
+        const name = textOfFirst(pm, "name") || "Untitled";
+
+        // Description can be inside <description><![CDATA[...]]></description>
+        const descriptionRaw = textOfFirst(pm, "description") || "";
+
+        // Coordinates can appear under <Point><coordinates>lng,lat,alt</coordinates>
+        const coordText = textOfFirst(pm, "coordinates");
+        if (!coordText) continue;
+
+        const coords = coordText.trim().split(/\s+/)[0]; // take first coordinate set
+        const [lngStr, latStr] = coords.split(",");
+        const lat = parseFloat(latStr);
+        const lng = parseFloat(lngStr);
+
+        if (!Number.isFinite(lat) || !Number.isFinite(lng)) continue;
+
+        result.push({
+          name,
+          lat,
+          lng,
+          descriptionHtml: descriptionRaw, // This is HTML from KML (may include <img>)
+        });
+      }
+
+      // Optional: sort by name
+      result.sort((a, b) => (a.name || "").localeCompare(b.name || ""));
+      return result;
+    }
+
+    function textOfFirst(parent, tagName) {
+      const node = parent.getElementsByTagName(tagName)[0];
+      return node ? node.textContent : "";
+    }
+
+    function renderList(items) {
+      const listEl = document.getElementById("list");
+      listEl.innerHTML = "";
+
+      if (!items.length) {
+        listEl.innerHTML = `<div style="padding:12px;color:#666;">No matches</div>`;
         return;
       }
-      const kmlText = await res.text();
-      const xml = new DOMParser().parseFromString(kmlText, "text/xml");
 
-      // Стили: id -> icon href
-      const styleMap = buildStyleMap(xml);
+      for (const item of items) {
+        const row = document.createElement("div");
+        row.className = "item";
 
-      // Собираем placemarks вместе с путём папок
-      const doc = xml.getElementsByTagName("Document")[0];
-      const items = [];
-      walkFolders(doc, [], (placemarkEl, path) => {
-        const data = parsePlacemark(placemarkEl, path, styleMap);
-        if (data) items.push(data);
-      });
+        // Small dot icon (you can improve to match KML style if needed)
+        const dot = document.createElement("div");
+        dot.className = "dot";
 
-      // Создаём маркеры
-      for (const it of items) {
-        const marker = new google.maps.Marker({
-          position: it.position,
-          map,
-          title: it.name,
-          icon: it.iconUrl ? { url: it.iconUrl } : undefined
+        const textWrap = document.createElement("div");
+        const nameEl = document.createElement("div");
+        nameEl.className = "name";
+        nameEl.textContent = item.name;
+
+        const metaEl = document.createElement("div");
+        metaEl.className = "meta";
+        metaEl.textContent = `${item.lat.toFixed(5)}, ${item.lng.toFixed(5)}`;
+
+        textWrap.appendChild(nameEl);
+        textWrap.appendChild(metaEl);
+
+        row.appendChild(dot);
+        row.appendChild(textWrap);
+
+        // Click on list item: pan/zoom and open the same popup
+        row.addEventListener("click", () => {
+          const pos = new google.maps.LatLng(item.lat, item.lng);
+          map.panTo(pos);
+          map.setZoom(Math.max(map.getZoom(), 14));
+          openPopup(item.name, item.descriptionHtml, pos);
         });
 
-        const obj = {
-          marker,
-          name: it.name,
-          sector: it.sector,
-          status: it.status,
-          iconUrl: it.iconUrl,
-          html: it.html,
-          visible: true
-        };
-
-        marker.addListener("click", () => openInfo(obj));
-        allMarkers.push(obj);
-
-        const key = it.sector + "||" + it.status;
-        if (!groupIndex.has(key)) groupIndex.set(key, []);
-        groupIndex.get(key).push(obj);
-      }
-
-      // Подстроим карту под все точки
-      if (allMarkers.length) {
-        const bounds = new google.maps.LatLngBounds();
-        allMarkers.forEach(o => bounds.extend(o.marker.getPosition()));
-        map.fitBounds(bounds);
-      }
-
-      // Рисуем меню
-      renderSidebar(items);
-    }
-
-    function buildStyleMap(xml) {
-      const out = new Map();
-      const styles = xml.getElementsByTagName("Style");
-      for (const st of styles) {
-        const id = st.getAttribute("id");
-        if (!id) continue;
-        const hrefEl = st.getElementsByTagName("href")[0];
-        if (hrefEl && hrefEl.textContent) {
-          out.set("#" + id, hrefEl.textContent.trim());
-        }
-      }
-      return out;
-    }
-
-    function walkFolders(node, path, onPlacemark) {
-      // node: Document или Folder
-      const nameEl = node.getElementsByTagName("name")[0];
-      const curName = nameEl && nameEl.parentNode === node ? nameEl.textContent.trim() : null;
-      const nextPath = curName ? [...path, curName] : [...path];
-
-      // Placemark прямые дети
-      for (const child of node.children) {
-        if (child.tagName === "Placemark") onPlacemark(child, nextPath);
-      }
-
-      // Folder дети
-      for (const child of node.children) {
-        if (child.tagName === "Folder") walkFolders(child, nextPath, onPlacemark);
+        listEl.appendChild(row);
       }
     }
 
-    function parsePlacemark(pm, path, styleMap) {
-      const nameEl = pm.getElementsByTagName("name")[0];
-      const name = nameEl ? nameEl.textContent.trim() : "Untitled";
-
-      // Координаты (Point)
-      const coordEl = pm.getElementsByTagName("coordinates")[0];
-      if (!coordEl || !coordEl.textContent) return null;
-      const parts = coordEl.textContent.trim().split(",");
-      if (parts.length < 2) return null;
-      const lng = parseFloat(parts[0]);
-      const lat = parseFloat(parts[1]);
-      if (!Number.isFinite(lat) || !Number.isFinite(lng)) return null;
-
-      // Folder path -> sector/status
-      // Для твоего файла это примерно:
-      // [0] rcs construction Projects.kml
-      // [1] Projects
-      // [2] Sector
-      // [3] Status
-      const sector = path[2] || "Uncategorized";
-      const status = path[3] || "Other";
-
-      // Иконка
-      const styleUrlEl = pm.getElementsByTagName("styleUrl")[0];
-      const styleUrl = styleUrlEl ? styleUrlEl.textContent.trim() : null;
-      const iconUrl = styleUrl && styleMap.has(styleUrl) ? styleMap.get(styleUrl) : null;
-
-      // Description (HTML)
-      const descEl = pm.getElementsByTagName("description")[0];
-      const rawHtml = descEl ? descEl.textContent : "";
-      const html = sanitizePopupHtml(rawHtml);
-
-      return {
-        name,
-        position: { lat, lng },
-        sector,
-        status,
-        iconUrl,
-        html
-      };
+    // =========================
+    // 6) URL HELPERS
+    // =========================
+    function toAbsoluteUrl(relativeOrAbsolute) {
+      // KmlLayer prefers absolute URLs. This converts "./projects.kml" to full URL.
+      const a = document.createElement("a");
+      a.href = relativeOrAbsolute;
+      return a.href;
     }
 
-    // Минимально “подлечить” HTML из KML (и гарантировать, что img подчиняется CSS)
-    function sanitizePopupHtml(rawHtml) {
-      if (!rawHtml) return "";
-      // убираем одинокий ">" на отдельной строке, если вдруг он где-то остался
-      const cleaned = rawHtml.replace(/^\s*>\s*$/gm, "");
-      return cleaned;
-    }
-
-    // 4) Попап
-    function openInfo(obj) {
-      const content = `
-        <div class="kml-popup">
-          <div style="font-size:16px; font-weight:600; margin:0 0 8px 0;">
-            ${escapeHtml(obj.name)}
-          </div>
-          <div>${obj.html || ""}</div>
-        </div>
-      `;
-      infoWindow.setContent(content);
-      infoWindow.open(map, obj.marker);
-    }
-
-    function escapeHtml(s) {
-      return String(s).replace(/[&<>"']/g, c => ({
-        "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"
-      }[c]));
-    }
-
-    // 5) Левое меню
-    function renderSidebar(items) {
-      // Строим дерево sector -> status -> list
-      const bySector = new Map();
-      for (const o of allMarkers) {
-        if (!bySector.has(o.sector)) bySector.set(o.sector, new Map());
-        const m = bySector.get(o.sector);
-        if (!m.has(o.status)) m.set(o.status, []);
-        m.get(o.status).push(o);
-      }
-
-      // Сортировка
-      const sectorsSorted = [...bySector.keys()].sort((a,b)=>a.localeCompare(b));
-      const tree = document.getElementById("tree");
-      tree.innerHTML = "";
-
-      for (const sector of sectorsSorted) {
-        const statusMap = bySector.get(sector);
-        const sectorCount = [...statusMap.values()].reduce((n,arr)=>n+arr.length,0);
-
-        const sectorDetails = document.createElement("details");
-        sectorDetails.open = true;
-
-        const sectorSummary = document.createElement("summary");
-        sectorSummary.className = "groupTitle";
-        sectorSummary.innerHTML = `
-          <input type="checkbox" checked data-scope="sector" />
-          <span>${escapeHtml(sector)}</span>
-          <span class="count">${sectorCount}</span>
-        `;
-        sectorDetails.appendChild(sectorSummary);
-
-        const sectorBody = document.createElement("div");
-        sectorBody.style.paddingLeft = "18px";
-
-        const statusesSorted = [...statusMap.keys()].sort((a,b)=>a.localeCompare(b));
-        for (const status of statusesSorted) {
-          const list = statusMap.get(status);
-
-          const statusDetails = document.createElement("details");
-          statusDetails.open = true;
-
-          const statusSummary = document.createElement("summary");
-          statusSummary.className = "groupTitle";
-          statusSummary.innerHTML = `
-            <input type="checkbox" checked data-scope="status" />
-            <span>${escapeHtml(status)}</span>
-            <span class="count">${list.length}</span>
-          `;
-          statusDetails.appendChild(statusSummary);
-
-          const ul = document.createElement("div");
-          ul.style.paddingLeft = "18px";
-
-          // сортировка по имени
-          list.sort((a,b)=>a.name.localeCompare(b.name));
-
-          for (const obj of list) {
-            const row = document.createElement("div");
-            row.className = "item";
-            row.dataset.name = obj.name.toLowerCase();
-            row.dataset.sector = obj.sector;
-            row.dataset.status = obj.status;
-
-            const icon = document.createElement("img");
-            icon.className = "icon";
-            icon.src = obj.iconUrl || "";
-            icon.alt = "";
-            icon.style.visibility = obj.iconUrl ? "visible" : "hidden";
-
-            const text = document.createElement("div");
-            text.textContent = obj.name;
-
-            row.appendChild(icon);
-            row.appendChild(text);
-
-            row.addEventListener("click", () => {
-              map.panTo(obj.marker.getPosition());
-              map.setZoom(Math.max(map.getZoom(), 13));
-              openInfo(obj);
-            });
-
-            ul.appendChild(row);
-          }
-
-          statusDetails.appendChild(ul);
-          sectorBody.appendChild(statusDetails);
-
-          // чекбокс статуса
-          statusSummary.querySelector("input[type=checkbox]").addEventListener("change", (e) => {
-            const checked = e.target.checked;
-            list.forEach(o => setMarkerVisible(o, checked));
-          });
-        }
-
-        sectorDetails.appendChild(sectorBody);
-        tree.appendChild(sectorDetails);
-
-        // чекбокс сектора
-        sectorSummary.querySelector("input[type=checkbox]").addEventListener("change", (e) => {
-          const checked = e.target.checked;
-          for (const arr of statusMap.values()) arr.forEach(o => setMarkerVisible(o, checked));
-
-          // синхронизируем вложенные чекбоксы (визуально)
-          sectorDetails.querySelectorAll('summary input[type=checkbox][data-scope="status"]').forEach(cb => {
-            cb.checked = checked;
-          });
-        });
-      }
-    }
-
-    function setMarkerVisible(obj, visible) {
-      obj.visible = visible;
-      obj.marker.setMap(visible ? map : null);
-      if (!visible) infoWindow.close();
-    }
-
-    // 6) Поиск
-    function wireSearch() {
-      const input = document.getElementById("search");
-      input.addEventListener("input", () => {
-        const q = input.value.trim().toLowerCase();
-        const rows = document.querySelectorAll(".item");
-        rows.forEach(r => {
-          const ok = !q || r.dataset.name.includes(q);
-          r.style.display = ok ? "" : "none";
-        });
-      });
-    }
+    // Expose initMap globally for the Google callback
+    window.initMap = initMap;
   </script>
 
+  <!--
+    IMPORTANT:
+    Replace YOUR_API_KEY with your real key.
+    Also make sure the key is allowed for:
+      https://dmitryscheglov.github.io/*
+      https://dmitryscheglov.github.io/rcs-map-demo/*
+    in Google Cloud Console → Credentials → API key → Website restrictions
+  -->
   <script
     async
-    src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&callback=initMap&loading=async">
+    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBQJdAz47je6PT8EWNTBQKKCKwbh1DbpLs&callback=initMap">
   </script>
 </body>
 </html>
