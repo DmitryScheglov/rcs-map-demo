@@ -4,33 +4,66 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>rcs construction Projects Map (Demo)</title>
+
   <style>
     body { margin: 0; font-family: Arial, sans-serif; }
     .topbar { padding: 12px 16px; border-bottom: 1px solid #e5e5e5; }
     #map { height: calc(100vh - 49px); width: 100%; }
+
+    /* Custom popup styling */
+    .kml-popup {
+      max-width: 1000px;
+    }
+
+    .kml-popup img {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
   </style>
 </head>
+
 <body>
   <div class="topbar">rcs construction — Projects Map (Demo)</div>
   <div id="map"></div>
 
   <script>
+    let map;
+    let infoWindow;
+
     function initMap() {
-      const map = new google.maps.Map(document.getElementById("map"), {
+
+      map = new google.maps.Map(document.getElementById("map"), {
         zoom: 6,
         center: { lat: 44.6488, lng: -63.5752 }
       });
 
-      new google.maps.KmlLayer({
-  url: "https://raw.githubusercontent.com/DmitryScheglov/rcs-map-demo/main/rcs%20construction%20Projects%20Crossing.kml",
-  map: map,
-  preserveViewport: false
-});
+      infoWindow = new google.maps.InfoWindow({
+        maxWidth: 1050
+      });
+
+      const kmlLayer = new google.maps.KmlLayer({
+        url: "https://raw.githubusercontent.com/DmitryScheglov/rcs-map-demo/main/rcs%20construction%20Projects%20Crossing.kml",
+        map: map,
+        preserveViewport: false,
+        suppressInfoWindows: true
+      });
+
+      kmlLayer.addListener("click", (event) => {
+
+        infoWindow.setContent(
+          `<div class="kml-popup">${event.featureData.infoWindowHtml}</div>`
+        );
+
+        infoWindow.setPosition(event.latLng);
+        infoWindow.open(map);
+      });
     }
   </script>
 
   <script async
-    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBQJdAz47je6PT8EWNTBQKKCKwbh1DbpLs&callback=initMap">
+    src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&callback=initMap&loading=async">
   </script>
+
 </body>
 </html>
