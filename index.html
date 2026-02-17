@@ -6,25 +6,33 @@
   <title>rcs construction Projects Map (Demo)</title>
 
   <style>
-    /* Page layout */
+    /* Basic page layout */
     html, body { height: 100%; margin: 0; font-family: Arial, sans-serif; }
     .topbar { padding: 12px 16px; border-bottom: 1px solid #e5e5e5; background: #fff; }
 
-    /* Two-column layout: left panel + map */
+    /* Two-column layout */
     .layout { display: flex; height: calc(100vh - 49px); }
+
+    /* Left panel */
     .sidebar {
       width: 360px;
       min-width: 280px;
-      max-width: 420px;
+      max-width: 440px;
       border-right: 1px solid #e5e5e5;
       background: #fff;
       display: flex;
       flex-direction: column;
     }
+
     .sidebar .search {
       padding: 12px;
       border-bottom: 1px solid #e5e5e5;
+      background: #fff;
+      position: sticky;
+      top: 0;
+      z-index: 5;
     }
+
     .sidebar input {
       width: 100%;
       box-sizing: border-box;
@@ -32,44 +40,113 @@
       border: 1px solid #ddd;
       border-radius: 8px;
       outline: none;
+      font-size: 14px;
     }
+
     .list {
       overflow: auto;
-      padding: 8px;
+      padding: 8px 8px 16px;
       flex: 1;
     }
+
+    /* Category blocks */
+    .category {
+      margin: 8px 0;
+      border: 1px solid #eee;
+      border-radius: 10px;
+      overflow: hidden;
+      background: #fff;
+    }
+
+    .cat-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 10px 12px;
+      cursor: pointer;
+      background: #fafafa;
+      border-bottom: 1px solid #eee;
+      user-select: none;
+    }
+
+    .cat-title {
+      font-size: 14px;
+      color: #111;
+    }
+
+    .cat-count {
+      font-size: 12px;
+      color: #666;
+    }
+
+    .cat-body {
+      padding: 6px 6px 8px;
+      display: none; /* collapsed by default */
+    }
+
+    .category.open .cat-body { display: block; }
+
+    /* List items */
     .item {
-      padding: 10px 10px;
+      padding: 8px 8px;
       border-radius: 8px;
       cursor: pointer;
       display: flex;
       gap: 10px;
-      align-items: center;
+      align-items: flex-start;
     }
     .item:hover { background: #f6f6f6; }
-    .dot {
-      width: 10px; height: 10px; border-radius: 50%;
-      background: #666;
-      flex: 0 0 10px;
+
+    .icon {
+      width: 18px;
+      height: 18px;
+      margin-top: 2px;
+      flex: 0 0 18px;
     }
-    .name { font-size: 14px; line-height: 1.2; color: #111; }
-    .meta { font-size: 12px; color: #666; margin-top: 2px; }
+    .icon img {
+      width: 18px;
+      height: 18px;
+      display: block;
+      object-fit: contain;
+    }
+    .icon .fallback-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: #666;
+      margin: 4px auto 0;
+    }
+
+    .text-wrap { flex: 1; min-width: 0; }
+    .name {
+      font-size: 13px;
+      line-height: 1.2;
+      color: #111;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .meta {
+      font-size: 11px;
+      color: #666;
+      margin-top: 2px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
 
     /* Map container */
     #map { flex: 1; }
 
-    /* Custom popup wrapper */
+    /* Popup wrapper and image auto-fit */
     .kml-popup { max-width: 1050px; }
-
-    /* Auto-limit images inside KML popup to fit height */
     .kml-popup img {
       max-width: 100%;
       height: auto;
       display: block;
-
-      /* Key part: limit image height to 400px */
-      max-height: 400px;
-      object-fit: contain;
+      max-height: 400px;     /* auto "compress" by limiting height */
+      object-fit: contain;   /* keep full image visible */
     }
   </style>
 </head>
@@ -90,22 +167,16 @@
 
   <script>
     // =========================
-    // 1) CONFIG (edit these)
+    // 1) CONFIG
     // =========================
 
-    // IMPORTANT:
     // Put your KML file in the SAME repo folder as index.html
-    // and name it "projects.kml" (recommended).
-    //
-    // Example repo structure:
+    // Repo example:
     //   /index.html
     //   /projects.kml
-    //
-    // Then it will be available at:
-    //   https://dmitryscheglov.github.io/rcs-map-demo/projects.kml
     const KML_URL = "./rcs construction Projects Crossing.kml";
 
-    // Default view (Halifax area)
+    // Default map view
     const DEFAULT_CENTER = { lat: 44.6488, lng: -63.5752 };
     const DEFAULT_ZOOM = 6;
 
@@ -116,87 +187,101 @@
     let infoWindow;
     let kmlLayer;
 
-    // Local copy of KML placemarks for the left list
-    // Each item: { name, lat, lng, descriptionHtml }
-    let placemarks = [];
+    // Flat list of placemarks for search
+    // { name, lat, lng, descriptionHtml, iconHref, categoryPath }
+    let allPlacemarks = [];
+
+    // Category tree-like structure (we keep it simple as map: "Category > Sub" => items[])
+    let grouped = new Map();
+
+    // Icon/style lookup tables
+    // styleId -> iconHref
+    const styleIconById = new Map();
+
+    // styleMapId -> normalStyleUrl (usually points to a Style)
+    const styleMapNormalById = new Map();
 
     // =========================
-    // 3) MAP INIT (called by Google Maps)
+    // 3) INIT MAP
     // =========================
     function initMap() {
-      // Create the map
       map = new google.maps.Map(document.getElementById("map"), {
-        center: DEFAULT_CENTER,
         zoom: DEFAULT_ZOOM,
-        mapTypeId: google.maps.MapTypeId.SATELLITE, // Start in satellite mode
-        // Optional: show map type control (Map / Satellite buttons)
-        mapTypeControl: true,
+        center: DEFAULT_CENTER,
+        mapTypeId: google.maps.MapTypeId.SATELLITE, // start satellite
+        mapTypeControl: true
       });
 
-      // Create one InfoWindow for all clicks
       infoWindow = new google.maps.InfoWindow({ maxWidth: 1050 });
 
-      // Load KML as a layer (for icons + styles)
+      // KML layer draws your original icons/styles on the map
       kmlLayer = new google.maps.KmlLayer({
-        url: toAbsoluteUrl(KML_URL),  // KML layer needs an absolute URL
+        url: toAbsoluteUrl(KML_URL),
         map: map,
         preserveViewport: false,
-        suppressInfoWindows: true,    // We'll show our own InfoWindow
+        suppressInfoWindows: true
       });
 
-      // When a placemark is clicked on the map, show popup
+      // Use our own popup to control image sizing
       kmlLayer.addListener("click", (event) => {
         openPopup(event.featureData.name, event.featureData.infoWindowHtml, event.latLng);
       });
 
-      // Build the left menu by fetching and parsing the KML ourselves
-      // (KmlLayer does NOT provide a list API, so we parse the KML file)
+      // Build left menu by parsing the KML file (folders + styles)
       fetchAndBuildMenu();
     }
 
     // =========================
-    // 4) POPUP HELPERS
+    // 4) POPUP
     // =========================
     function openPopup(title, html, position) {
-      // Wrap KML HTML inside our container so CSS can control images
       const safeHtml = `<div class="kml-popup">${html || ""}</div>`;
-
       infoWindow.setContent(safeHtml);
       infoWindow.setPosition(position);
       infoWindow.open({ map });
     }
 
     // =========================
-    // 5) LEFT MENU (fetch + parse KML)
+    // 5) FETCH + PARSE KML
     // =========================
     async function fetchAndBuildMenu() {
       try {
-        // Fetch the KML file from GitHub Pages
         const res = await fetch(KML_URL, { cache: "no-store" });
         if (!res.ok) throw new Error("Failed to fetch KML: " + res.status);
 
         const kmlText = await res.text();
 
-        // Parse XML
         const parser = new DOMParser();
         const xml = parser.parseFromString(kmlText, "text/xml");
 
-        // Detect parse errors
         const parseError = xml.getElementsByTagName("parsererror")[0];
         if (parseError) throw new Error("KML XML parse error");
 
-        // Collect placemarks
-        placemarks = extractPlacemarks(xml);
+        // 1) Build style/icon lookup tables
+        buildStyleTables(xml);
 
-        // Render list
-        renderList(placemarks);
+        // 2) Extract placemarks with folder/category path
+        const placemarks = extractPlacemarksWithFolders(xml);
 
-        // Hook search
+        // 3) Save flat list for search and grouping
+        allPlacemarks = placemarks;
+
+        // 4) Group by category path
+        grouped = groupByCategory(allPlacemarks);
+
+        // 5) Render list
+        renderGroupedList(grouped);
+
+        // 6) Hook search
         const searchBox = document.getElementById("searchBox");
         searchBox.addEventListener("input", () => {
           const q = searchBox.value.trim().toLowerCase();
-          const filtered = placemarks.filter(p => (p.name || "").toLowerCase().includes(q));
-          renderList(filtered);
+          const filtered = q
+            ? allPlacemarks.filter(p => (p.name || "").toLowerCase().includes(q))
+            : allPlacemarks;
+
+          const groupedFiltered = groupByCategory(filtered);
+          renderGroupedList(groupedFiltered);
         });
 
       } catch (err) {
@@ -204,46 +289,129 @@
         alert(
           "Menu build failed.\n\n" +
           "Most common reasons:\n" +
-          "1) projects.kml is not in the repo next to index.html\n" +
-          "2) KML is not public / not reachable by GitHub Pages\n" +
-          "3) The KML file has invalid XML\n\n" +
-          "Check DevTools Console for details."
+          "1) projects.kml is not next to index.html in the repo\n" +
+          "2) GitHub Pages is not serving the file (wrong branch/folder)\n" +
+          "3) KML is not valid XML\n\n" +
+          "Open DevTools Console for details."
         );
       }
     }
 
-    function extractPlacemarks(xml) {
-      const result = [];
-      const placemarkNodes = Array.from(xml.getElementsByTagName("Placemark"));
+    // =========================
+    // 6) STYLES: IconStyle lookup
+    // =========================
+    function buildStyleTables(xml) {
+      styleIconById.clear();
+      styleMapNormalById.clear();
 
-      for (const pm of placemarkNodes) {
+      // Read <Style id="..."><IconStyle><Icon><href>...</href>
+      const styles = Array.from(xml.getElementsByTagName("Style"));
+      for (const st of styles) {
+        const id = st.getAttribute("id");
+        if (!id) continue;
+
+        const iconHref = firstText(st, "IconStyle href");
+        if (iconHref) styleIconById.set("#" + id, iconHref);
+      }
+
+      // Read <StyleMap id="..."><Pair><key>normal</key><styleUrl>#styleId</styleUrl>
+      const styleMaps = Array.from(xml.getElementsByTagName("StyleMap"));
+      for (const sm of styleMaps) {
+        const id = sm.getAttribute("id");
+        if (!id) continue;
+
+        const pairs = Array.from(sm.getElementsByTagName("Pair"));
+        for (const pair of pairs) {
+          const key = textOfFirst(pair, "key");
+          const styleUrl = textOfFirst(pair, "styleUrl");
+          if (key === "normal" && styleUrl) {
+            styleMapNormalById.set("#" + id, styleUrl.trim());
+          }
+        }
+      }
+    }
+
+    // Helper: find first IconStyle href inside a Style element
+    function firstText(styleNode, kind) {
+      // We want: Style -> IconStyle -> Icon -> href
+      const iconStyle = styleNode.getElementsByTagName("IconStyle")[0];
+      if (!iconStyle) return "";
+      const icon = iconStyle.getElementsByTagName("Icon")[0];
+      if (!icon) return "";
+      const href = icon.getElementsByTagName("href")[0];
+      return href ? href.textContent.trim() : "";
+    }
+
+    // Resolve a placemark's styleUrl to an icon href if possible
+    function resolveIconHref(styleUrl) {
+      if (!styleUrl) return "";
+
+      // If styleUrl points to a StyleMap, resolve its "normal" style first
+      const resolved = styleMapNormalById.get(styleUrl) || styleUrl;
+
+      // Now resolved should point to a Style id like "#greenPin"
+      return styleIconById.get(resolved) || "";
+    }
+
+    // =========================
+    // 7) FOLDERS: Extract placemarks with category paths
+    // =========================
+    function extractPlacemarksWithFolders(xml) {
+      const results = [];
+
+      // KML structure usually: <kml><Document> ... <Folder> ... <Placemark> ...
+      const doc = xml.getElementsByTagName("Document")[0] || xml;
+
+      // Walk folders recursively
+      walkContainer(doc, [], results);
+
+      // Sort inside categories by name
+      results.sort((a, b) => (a.categoryPath + a.name).localeCompare(b.categoryPath + b.name));
+      return results;
+    }
+
+    // Walk Document/Folder nodes. Each Folder name becomes part of category path.
+    function walkContainer(node, pathParts, out) {
+      // If this node is a Folder, add its name to path
+      if (node.tagName === "Folder") {
+        const folderName = textOfFirst(node, "name") || "Unnamed";
+        pathParts = [...pathParts, folderName];
+      }
+
+      // Collect direct placemarks inside this node
+      const placemarks = Array.from(node.children).filter(ch => ch.tagName === "Placemark");
+      for (const pm of placemarks) {
         const name = textOfFirst(pm, "name") || "Untitled";
+        const descriptionHtml = textOfFirst(pm, "description") || "";
 
-        // Description can be inside <description><![CDATA[...]]></description>
-        const descriptionRaw = textOfFirst(pm, "description") || "";
-
-        // Coordinates can appear under <Point><coordinates>lng,lat,alt</coordinates>
         const coordText = textOfFirst(pm, "coordinates");
         if (!coordText) continue;
 
-        const coords = coordText.trim().split(/\s+/)[0]; // take first coordinate set
+        const coords = coordText.trim().split(/\s+/)[0];
         const [lngStr, latStr] = coords.split(",");
         const lat = parseFloat(latStr);
         const lng = parseFloat(lngStr);
-
         if (!Number.isFinite(lat) || !Number.isFinite(lng)) continue;
 
-        result.push({
+        // styleUrl might be inside Placemark
+        const styleUrl = (textOfFirst(pm, "styleUrl") || "").trim();
+        const iconHref = resolveIconHref(styleUrl);
+
+        out.push({
           name,
           lat,
           lng,
-          descriptionHtml: descriptionRaw, // This is HTML from KML (may include <img>)
+          descriptionHtml,
+          iconHref,
+          categoryPath: pathParts.join(" > ") || "Uncategorized"
         });
       }
 
-      // Optional: sort by name
-      result.sort((a, b) => (a.name || "").localeCompare(b.name || ""));
-      return result;
+      // Recurse into child folders
+      const childFolders = Array.from(node.children).filter(ch => ch.tagName === "Folder");
+      for (const f of childFolders) {
+        walkContainer(f, pathParts, out);
+      }
     }
 
     function textOfFirst(parent, tagName) {
@@ -251,74 +419,124 @@
       return node ? node.textContent : "";
     }
 
-    function renderList(items) {
+    // =========================
+    // 8) GROUP + RENDER
+    // =========================
+    function groupByCategory(items) {
+      const map = new Map();
+      for (const p of items) {
+        const key = p.categoryPath || "Uncategorized";
+        if (!map.has(key)) map.set(key, []);
+        map.get(key).push(p);
+      }
+      // Sort categories by name
+      return new Map([...map.entries()].sort((a, b) => a[0].localeCompare(b[0])));
+    }
+
+    function renderGroupedList(groupedMap) {
       const listEl = document.getElementById("list");
       listEl.innerHTML = "";
 
-      if (!items.length) {
+      if (!groupedMap.size) {
         listEl.innerHTML = `<div style="padding:12px;color:#666;">No matches</div>`;
         return;
       }
 
-      for (const item of items) {
-        const row = document.createElement("div");
-        row.className = "item";
+      for (const [catName, items] of groupedMap.entries()) {
+        const cat = document.createElement("div");
+        cat.className = "category open"; // open by default; change to "" if you want collapsed
 
-        // Small dot icon (you can improve to match KML style if needed)
-        const dot = document.createElement("div");
-        dot.className = "dot";
+        const header = document.createElement("div");
+        header.className = "cat-header";
 
-        const textWrap = document.createElement("div");
-        const nameEl = document.createElement("div");
-        nameEl.className = "name";
-        nameEl.textContent = item.name;
+        const left = document.createElement("div");
+        left.className = "cat-title";
+        left.textContent = catName;
 
-        const metaEl = document.createElement("div");
-        metaEl.className = "meta";
-        metaEl.textContent = `${item.lat.toFixed(5)}, ${item.lng.toFixed(5)}`;
+        const right = document.createElement("div");
+        right.className = "cat-count";
+        right.textContent = items.length;
 
-        textWrap.appendChild(nameEl);
-        textWrap.appendChild(metaEl);
+        header.appendChild(left);
+        header.appendChild(right);
 
-        row.appendChild(dot);
-        row.appendChild(textWrap);
-
-        // Click on list item: pan/zoom and open the same popup
-        row.addEventListener("click", () => {
-          const pos = new google.maps.LatLng(item.lat, item.lng);
-          map.panTo(pos);
-          map.setZoom(Math.max(map.getZoom(), 14));
-          openPopup(item.name, item.descriptionHtml, pos);
+        header.addEventListener("click", () => {
+          cat.classList.toggle("open");
         });
 
-        listEl.appendChild(row);
+        const body = document.createElement("div");
+        body.className = "cat-body";
+
+        for (const item of items) {
+          body.appendChild(renderItemRow(item));
+        }
+
+        cat.appendChild(header);
+        cat.appendChild(body);
+        listEl.appendChild(cat);
       }
     }
 
+    function renderItemRow(item) {
+      const row = document.createElement("div");
+      row.className = "item";
+
+      const iconWrap = document.createElement("div");
+      iconWrap.className = "icon";
+
+      if (item.iconHref) {
+        const img = document.createElement("img");
+        img.src = item.iconHref;
+        img.alt = "";
+        iconWrap.appendChild(img);
+      } else {
+        const dot = document.createElement("div");
+        dot.className = "fallback-dot";
+        iconWrap.appendChild(dot);
+      }
+
+      const textWrap = document.createElement("div");
+      textWrap.className = "text-wrap";
+
+      const nameEl = document.createElement("div");
+      nameEl.className = "name";
+      nameEl.textContent = item.name;
+
+      const metaEl = document.createElement("div");
+      metaEl.className = "meta";
+      metaEl.textContent = `${item.lat.toFixed(5)}, ${item.lng.toFixed(5)}`;
+
+      textWrap.appendChild(nameEl);
+      textWrap.appendChild(metaEl);
+
+      row.appendChild(iconWrap);
+      row.appendChild(textWrap);
+
+      row.addEventListener("click", () => {
+        const pos = new google.maps.LatLng(item.lat, item.lng);
+        map.panTo(pos);
+        map.setZoom(Math.max(map.getZoom(), 14));
+        openPopup(item.name, item.descriptionHtml, pos);
+      });
+
+      return row;
+    }
+
     // =========================
-    // 6) URL HELPERS
+    // 9) HELPERS
     // =========================
     function toAbsoluteUrl(relativeOrAbsolute) {
-      // KmlLayer prefers absolute URLs. This converts "./projects.kml" to full URL.
       const a = document.createElement("a");
       a.href = relativeOrAbsolute;
       return a.href;
     }
 
-    // Expose initMap globally for the Google callback
+    // Make initMap available for the Google callback
     window.initMap = initMap;
   </script>
 
-  <!--
-    IMPORTANT:
-    Replace YOUR_API_KEY with your real key.
-    Also make sure the key is allowed for:
-      https://dmitryscheglov.github.io/*
-      https://dmitryscheglov.github.io/rcs-map-demo/*
-    in Google Cloud Console → Credentials → API key → Website restrictions
-  -->
-  <script
-    async
+  <!-- Replace YOUR_API_KEY with your real key -->
+  <script async
     src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBQJdAz47je6PT8EWNTBQKKCKwbh1DbpLs&callback=initMap">
   </script>
 </body>
