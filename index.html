@@ -26,7 +26,6 @@
       overflow: hidden;
     }
 
-    /* Sidebar (40% narrower than original 360px) */
     .sidebar {
       width: 216px;
       min-width: 200px;
@@ -45,19 +44,28 @@
       width: 100%;
       padding: 6px;
       font-size: 14px;
+      box-sizing: border-box;
     }
 
     .list {
       flex: 1;
       overflow-y: auto;
+      padding: 6px 0;
     }
 
-    .category {
-      padding: 8px 10px;
-      font-weight: bold;
-      background: #f7f7f7;
-      border-bottom: 1px solid #eee;
+    .layerRow {
+      padding: 6px 10px;
+      border-bottom: 1px solid #f2f2f2;
+      display: flex;
+      gap: 8px;
+      align-items: flex-start;
+    }
+
+    .layerRow label {
+      font-size: 13px;
+      line-height: 1.2;
       cursor: pointer;
+      user-select: none;
     }
 
     .item {
@@ -70,17 +78,27 @@
       background: #f5f5f5;
     }
 
+    .item .name {
+      font-weight: 600;
+      font-size: 13px;
+    }
+
+    .item .meta {
+      font-size: 11px;
+      color: #666;
+      margin-top: 2px;
+    }
+
     #map {
       flex: 1;
     }
 
-    /* Custom popup styling */
     .kml-popup {
       max-width: 1050px;
     }
 
     .kml-popup img {
-      max-height: 400px;  /* Auto compress image height */
+      max-height: 400px;
       width: auto;
       max-width: 100%;
       display: block;
@@ -90,17 +108,16 @@
 </head>
 
 <body>
-
-  <div class="topbar">
-    rcs construction — Projects Map (Demo)
-  </div>
+  <div class="topbar">rcs construction — Projects Map (Demo)</div>
 
   <div class="layout">
     <div class="sidebar">
       <div class="search">
         <input type="text" id="searchInput" placeholder="Search location name..." />
       </div>
-      <div class="list" id="locationList"></div>
+
+      <div class="list" id="layersList"></div>
+      <div class="list" id="locationList" style="border-top:1px solid #eee;"></div>
     </div>
 
     <div id="map"></div>
@@ -111,155 +128,272 @@
 
     let map;
     let infoWindow;
-    let locations = [];
+
+    // categoryName -> { visible: bool, markers: [], items: [] }
+    const categories = new Map();
+
+    // styleId -> iconHref
+    const styleIcons = new Map();
 
     function initMap() {
-
-      // Initialize map in satellite mode
       map = new google.maps.Map(document.getElementById("map"), {
         zoom: 7,
         center: { lat: 44.6488, lng: -63.5752 },
-        mapTypeId: 'satellite'
+        mapTypeId: "satellite"
       });
 
-      infoWindow = new google.maps.InfoWindow({
-        maxWidth: 1050
-      });
+      infoWindow = new google.maps.InfoWindow({ maxWidth: 1050 });
 
-      // Load KML layer
-      const kmlLayer = new google.maps.KmlLayer({
-        url: KML_URL,
-        map: map,
-        preserveViewport: false,
-        suppressInfoWindows: true
-      });
-
-      // Handle KML marker click
-      kmlLayer.addListener("click", (event) => {
-        const lat = event.latLng.lat();
-        const lng = event.latLng.lng();
-
-        panWithPopupPadding(lat, lng);
-
-        openPopup(
-          event.featureData.name,
-          event.featureData.infoWindowHtml,
-          event.latLng
-        );
-      });
-
-      // Fetch and parse KML for sidebar list
       fetch(KML_URL)
-        .then(res => res.text())
-        .then(str => {
-          const parser = new DOMParser();
-          const xml = parser.parseFromString(str, "text/xml");
-          parseKml(xml);
-          renderList();
+        .then(r => r.text())
+        .then(text => {
+          const xml = new DOMParser().parseFromString(text, "text/xml");
+          buildStyleIconMap(xml);
+          parseFoldersAndPlacemarks(xml);
+          renderLayerCheckboxes();
+          renderLocationList();
+          attachSearch();
+        })
+        .catch(err => {
+          console.error("KML load failed:", err);
         });
     }
 
-    function parseKml(xml) {
-      const placemarks = xml.getElementsByTagName("Placemark");
+    function buildStyleIconMap(xml) {
+      // Map <Style id="..."><IconStyle><Icon><href>...</href> to styleIcons
+      const styles = Array.from(xml.getElementsByTagName("Style"));
+      for (const st of styles) {
+        const id = st.getAttribute("id");
+        if (!id) continue;
 
-      for (let pm of placemarks) {
-        const name = pm.getElementsByTagName("name")[0]?.textContent || "";
-        const descNode = pm.getElementsByTagName("description")[0];
-        const description = descNode ? descNode.textContent : "";
+        const href = st.getElementsByTagName("href")[0]?.textContent?.trim();
+        if (href) styleIcons.set("#" + id, href);
+      }
 
-        const coordsNode = pm.getElementsByTagName("coordinates")[0];
-        if (!coordsNode) continue;
+      // Also support <StyleMap> if your KML uses it
+      const styleMaps = Array.from(xml.getElementsByTagName("StyleMap"));
+      for (const sm of styleMaps) {
+        const id = sm.getAttribute("id");
+        if (!id) continue;
 
-        const coordsText = coordsNode.textContent.trim();
-        const [lng, lat] = coordsText.split(",");
-
-        locations.push({
-          name,
-          descriptionHtml: description,
-          lat: parseFloat(lat),
-          lng: parseFloat(lng)
-        });
+        const pairs = Array.from(sm.getElementsByTagName("Pair"));
+        for (const p of pairs) {
+          const key = p.getElementsByTagName("key")[0]?.textContent?.trim();
+          const styleUrl = p.getElementsByTagName("styleUrl")[0]?.textContent?.trim();
+          if (key === "normal" && styleUrl && styleIcons.has(styleUrl)) {
+            styleIcons.set("#" + id, styleIcons.get(styleUrl));
+          }
+        }
       }
     }
 
-    function renderList() {
+    function parseFoldersAndPlacemarks(xml) {
+      const doc = xml.getElementsByTagName("Document")[0];
+      if (!doc) return;
+
+      // Walk folders recursively, building a folder path for categories
+      walkContainer(doc, ["rcs construction Projects"]);
+    }
+
+    function walkContainer(node, pathParts) {
+      // Folder nodes inside the current node
+      const folders = Array.from(node.children).filter(n => n.tagName === "Folder");
+
+      // Placemarks directly under this node (not inside subfolders)
+      const placemarks = Array.from(node.children).filter(n => n.tagName === "Placemark");
+
+      for (const pm of placemarks) {
+        const item = placemarkToItem(pm, pathParts.join(" > "));
+        if (!item) continue;
+        addItemToCategory(item.category, item);
+      }
+
+      for (const f of folders) {
+        const folderName = f.getElementsByTagName("name")[0]?.textContent?.trim() || "Unnamed Folder";
+        walkContainer(f, [...pathParts, folderName]);
+      }
+    }
+
+    function placemarkToItem(pm, categoryName) {
+      const name = pm.getElementsByTagName("name")[0]?.textContent?.trim() || "Unnamed";
+      const descNode = pm.getElementsByTagName("description")[0];
+      const descriptionHtml = descNode ? descNode.textContent : "";
+
+      const styleUrl = pm.getElementsByTagName("styleUrl")[0]?.textContent?.trim() || "";
+      const iconHref = styleIcons.get(styleUrl) || null;
+
+      const point = pm.getElementsByTagName("Point")[0];
+      if (!point) return null;
+
+      const coordText = point.getElementsByTagName("coordinates")[0]?.textContent?.trim();
+      if (!coordText) return null;
+
+      const [lngStr, latStr] = coordText.split(",");
+      const lat = parseFloat(latStr);
+      const lng = parseFloat(lngStr);
+
+      if (!Number.isFinite(lat) || !Number.isFinite(lng)) return null;
+
+      return {
+        name,
+        category: categoryName,
+        lat,
+        lng,
+        descriptionHtml,
+        iconHref
+      };
+    }
+
+    function addItemToCategory(categoryName, item) {
+      if (!categories.has(categoryName)) {
+        categories.set(categoryName, { visible: true, markers: [], items: [] });
+      }
+      const cat = categories.get(categoryName);
+      cat.items.push(item);
+
+      // Create marker
+      const marker = new google.maps.Marker({
+        position: { lat: item.lat, lng: item.lng },
+        map: map,
+        title: item.name,
+        icon: item.iconHref ? { url: item.iconHref } : undefined
+      });
+
+      marker.addListener("click", () => {
+        panWithPopupPadding(item.lat, item.lng);
+        openPopup(item.name, item.descriptionHtml, marker.getPosition());
+      });
+
+      cat.markers.push(marker);
+    }
+
+    function renderLayerCheckboxes() {
+      const container = document.getElementById("layersList");
+      container.innerHTML = "";
+
+      // Stable order
+      const names = Array.from(categories.keys()).sort((a, b) => a.localeCompare(b));
+
+      for (const name of names) {
+        const cat = categories.get(name);
+
+        const row = document.createElement("div");
+        row.className = "layerRow";
+
+        const cb = document.createElement("input");
+        cb.type = "checkbox";
+        cb.checked = cat.visible;
+
+        const label = document.createElement("label");
+        label.textContent = name;
+
+        cb.addEventListener("change", () => {
+          setCategoryVisible(name, cb.checked);
+          renderLocationList(); // refresh list to hide items too (optional)
+        });
+
+        row.appendChild(cb);
+        row.appendChild(label);
+        container.appendChild(row);
+      }
+    }
+
+    function setCategoryVisible(categoryName, visible) {
+      const cat = categories.get(categoryName);
+      if (!cat) return;
+
+      cat.visible = visible;
+      for (const m of cat.markers) {
+        m.setMap(visible ? map : null);
+      }
+    }
+
+    function renderLocationList(filterText = "") {
       const container = document.getElementById("locationList");
       container.innerHTML = "";
 
-      locations.forEach(item => {
+      const q = filterText.toLowerCase();
 
-        const row = document.createElement("div");
-        row.className = "item";
-        row.innerHTML = `<strong>${item.name}</strong><br/>
-                         <small>${item.lat.toFixed(5)}, ${item.lng.toFixed(5)}</small>`;
+      // Render only visible categories
+      const names = Array.from(categories.keys()).sort((a, b) => a.localeCompare(b));
 
-        row.addEventListener("click", () => {
-          const pos = new google.maps.LatLng(item.lat, item.lng);
+      for (const catName of names) {
+        const cat = categories.get(catName);
+        if (!cat.visible) continue;
 
-          map.setZoom(Math.max(map.getZoom(), 14));
-          panWithPopupPadding(item.lat, item.lng);
+        // Filter items by search query
+        const items = cat.items.filter(it => it.name.toLowerCase().includes(q));
+        if (items.length === 0) continue;
 
-          openPopup(item.name, item.descriptionHtml, pos);
-        });
+        // Category title (simple, not collapsible)
+        const header = document.createElement("div");
+        header.className = "layerRow";
+        header.style.background = "#fafafa";
+        header.style.fontWeight = "600";
+        header.textContent = `${catName} (${items.length})`;
+        container.appendChild(header);
 
-        container.appendChild(row);
-      });
+        for (const it of items) {
+          const row = document.createElement("div");
+          row.className = "item";
+          row.innerHTML = `
+            <div class="name">${escapeHtml(it.name)}</div>
+            <div class="meta">${it.lat.toFixed(5)}, ${it.lng.toFixed(5)}</div>
+          `;
+
+          row.addEventListener("click", () => {
+            const pos = new google.maps.LatLng(it.lat, it.lng);
+            map.setZoom(Math.max(map.getZoom() || 12, 14));
+            panWithPopupPadding(it.lat, it.lng);
+            openPopup(it.name, it.descriptionHtml, pos);
+          });
+
+          container.appendChild(row);
+        }
+      }
     }
 
     function openPopup(title, html, position) {
       infoWindow.setContent(`
         <div class="kml-popup">
-          <h3>${title}</h3>
+          <h3 style="margin:0 0 8px 0;">${escapeHtml(title)}</h3>
           ${html}
         </div>
       `);
-
       infoWindow.setPosition(position);
       infoWindow.open(map);
     }
 
-    // Move map slightly south so popup fits fully on screen
     function panWithPopupPadding(lat, lng) {
       const zoom = map.getZoom() || 12;
 
       const offsetByZoom = {
-        7: 0.15,
-        8: 0.10,
-        9: 0.07,
-        10: 0.05,
-        11: 0.035,
-        12: 0.025,
-        13: 0.018,
-        14: 0.012,
-        15: 0.008
+        7: 0.15, 8: 0.10, 9: 0.07, 10: 0.05,
+        11: 0.035, 12: 0.025, 13: 0.018, 14: 0.012, 15: 0.008
       };
 
-      const keys = Object.keys(offsetByZoom).map(Number).sort((a,b) => a-b);
+      const keys = Object.keys(offsetByZoom).map(Number).sort((a, b) => a - b);
       let closest = keys[0];
+      for (const k of keys) if (zoom >= k) closest = k;
 
-      for (const k of keys) {
-        if (zoom >= k) closest = k;
-      }
-
-      const latShift = offsetByZoom[closest];
-      map.panTo({ lat: lat - latShift, lng });
+      map.panTo({ lat: lat - offsetByZoom[closest], lng });
     }
 
-    // Search filter
-    document.addEventListener("input", function(e) {
-      if (e.target.id === "searchInput") {
-        const value = e.target.value.toLowerCase();
-        const items = document.querySelectorAll(".item");
+    function attachSearch() {
+      const input = document.getElementById("searchInput");
+      input.addEventListener("input", () => {
+        renderLocationList(input.value);
+      });
+    }
 
-        items.forEach(item => {
-          item.style.display =
-            item.textContent.toLowerCase().includes(value)
-              ? "block"
-              : "none";
-        });
-      }
-    });
-
+    function escapeHtml(str) {
+      return String(str)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
   </script>
 
   <script async
