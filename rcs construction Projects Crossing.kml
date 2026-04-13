@@ -2,8 +2,6 @@
 <kml xmlns="http://www.opengis.net/kml/2.2" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:gx="http://www.google.com/kml/ext/2.2" xmlns:kml="http://www.opengis.net/kml/2.2">
   <Document>
     <name>rcs construction Projects.kml</name>
-    <open>1</open>
-    <atom:link href="https://www.google.com/earth/about/versions/#earth-pro" rel="app" title="Google Earth Pro 7.3.7.1094"/>
     <Style id="greenPin">
       <IconStyle>
         <scale>1.1</scale>
@@ -3026,6 +3024,19 @@
         </ItemIcon>
       </ListStyle>
     </Style>
+    <Style id="yellowIcon1">
+      <IconStyle>
+        <scale>1.1</scale>
+        <Icon>
+          <href>http://maps.google.com/mapfiles/kml/paddle/ylw-blank.png</href>
+        </Icon>
+      </IconStyle>
+      <ListStyle>
+        <ItemIcon>
+          <href>http://maps.google.com/mapfiles/kml/paddle/ylw-blank-lv.png</href>
+        </ItemIcon>
+      </ListStyle>
+    </Style>
     <Style id="yellowIcon">
       <IconStyle>
         <scale>1.1</scale>
@@ -3039,6 +3050,29 @@
         </ItemIcon>
       </ListStyle>
     </Style>
+    <Style id="yellowIcon2">
+      <IconStyle>
+        <scale>1.1</scale>
+        <Icon>
+          <href>http://maps.google.com/mapfiles/kml/paddle/ylw-blank.png</href>
+        </Icon>
+      </IconStyle>
+      <ListStyle>
+        <ItemIcon>
+          <href>http://maps.google.com/mapfiles/kml/paddle/ylw-blank-lv.png</href>
+        </ItemIcon>
+      </ListStyle>
+    </Style>
+    <StyleMap id="yellowIcon0">
+      <Pair>
+        <key>normal</key>
+        <styleUrl>#yellowIcon1</styleUrl>
+      </Pair>
+      <Pair>
+        <key>highlight</key>
+        <styleUrl>#yellowIcon2</styleUrl>
+      </Pair>
+    </StyleMap>
     <Style id="yellowPin">
       <IconStyle>
         <scale>1.1</scale>
@@ -3813,7 +3847,7 @@
             <description><![CDATA[<img src="https://lh3.googleusercontent.com/pw/AP1GczPQiABvWmKn3dceW8IgyWBxloj9lSw-huHi_SAVbZj_vJOZq2H7uh-8EMjekPPoek3edtB75uxaPdUoIo-ttjZObfgLQZEEdLXv2JNiW0YTyTsTOqhyvRZWw__qhNlnwHcKtCSB83g3ECH0wKTmAmx0HQ=w1156-h868-s-no-gm?authuser=0" style="max-width:500px; height:auto;">]]></description>
             <styleUrl>#msn_grn-blank01</styleUrl>
             <Point>
-              <coordinates>-63.573713,44.645239,0</coordinates>
+              <coordinates>-63.57371299999999,44.645239,0</coordinates>
             </Point>
           </Placemark>
         </Folder>
@@ -4424,6 +4458,22 @@
               <coordinates>-63.60148,44.70394,0</coordinates>
             </Point>
           </Placemark>
+          <Placemark>
+            <name>Indian Brook Pow Wow Arbour</name>
+            <description><![CDATA[<img src="https://lh3.googleusercontent.com/pw/AP1GczMR4G5-p3WhBy1tstX93ZGBv2fEFYerT4ygYTWPXZ4Gcj52MThNdGwV7Evnrp9-W8lOMA714j6tYjeSY2-8YwJkwBiMN1yrluK7fEyMk194N65bvyS-ZDZWWqsSthkDmbWpWPLxvVh4zJwKIiquPnvZ7w=w1161-h868-s-no-gm?authuser=0" style="max-width:500px; height:auto;">]]></description>
+            <styleUrl>#yellowIcon0</styleUrl>
+            <Point>
+              <coordinates>-63.493393,45.099119,0</coordinates>
+            </Point>
+          </Placemark>
+          <Placemark>
+            <name>Banook Lake Finish Line Tower</name>
+            <description><![CDATA[<img src="https://lh3.googleusercontent.com/pw/AP1GczOFi9kvVKeqGxEcgpl9BTvWxziiQ-OiXfa3oT0mNLYO4QYRaJ1g0vQJSPmJ0S2V0CjqXNgQNYhZOuz9uAuVSugldHyBHddt3ifUm3_DrPqTTqFcK46m4RtK6BPja0E0X-a0iGuxLrV-QIIHgJfME0xYfg=w694-h868-s-no-gm?authuser=0" style="max-width:500px; height:auto;">]]></description>
+            <styleUrl>#yellowIcon</styleUrl>
+            <Point>
+              <coordinates>-63.561557,44.676540,0</coordinates>
+            </Point>
+          </Placemark>
         </Folder>
         <Folder>
           <name>Under construction</name>
@@ -4968,6 +5018,14 @@
             <styleUrl>#msn_wht-blank01</styleUrl>
             <Point>
               <coordinates>-63.50682400000001,44.975218,0</coordinates>
+            </Point>
+          </Placemark>
+          <Placemark>
+            <name>Glo Braces Truro</name>
+            <description><![CDATA[<img src="https://lh3.googleusercontent.com/pw/AP1GczMZvyekkqExF11Zm17QDtNsuU-wgnW6LepxnTj3DvpqgSP8COd2lDkcQTito9QKBiTPMuwlNGzOshVakX-kL9u0qDrzbCJEgrze_A02djLjwF7bv2nxoQ4ViGPGrnZKgiZsr-MrfDeRMwzZp3wU18duug=w1301-h868-s-no-gm?authuser=0" style="max-width:500px; height:auto;">]]></description>
+            <styleUrl>#msn_wht-blank01</styleUrl>
+            <Point>
+              <coordinates>-63.303392,45.370770,0</coordinates>
             </Point>
           </Placemark>
         </Folder>
