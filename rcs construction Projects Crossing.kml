@@ -1081,16 +1081,6 @@
 			<styleUrl>#sh_pink-pushpin10</styleUrl>
 		</Pair>
 	</StyleMap>
-	<StyleMap id="msn_pink-pushpin01">
-		<Pair>
-			<key>normal</key>
-			<styleUrl>#sn_pink-pushpin02</styleUrl>
-		</Pair>
-		<Pair>
-			<key>highlight</key>
-			<styleUrl>#sh_pink-pushpin1</styleUrl>
-		</Pair>
-	</StyleMap>
 	<StyleMap id="msn_pink-pushpin02">
 		<Pair>
 			<key>normal</key>
@@ -1194,11 +1184,21 @@
 	<StyleMap id="msn_wht-blank01">
 		<Pair>
 			<key>normal</key>
-			<styleUrl>#sn_wht-blank3</styleUrl>
+			<styleUrl>#sn_wht-blank31</styleUrl>
 		</Pair>
 		<Pair>
 			<key>highlight</key>
 			<styleUrl>#sh_wht-blank200</styleUrl>
+		</Pair>
+	</StyleMap>
+	<StyleMap id="msn_wht-blank010">
+		<Pair>
+			<key>normal</key>
+			<styleUrl>#sn_wht-blank3</styleUrl>
+		</Pair>
+		<Pair>
+			<key>highlight</key>
+			<styleUrl>#sh_wht-blank2000</styleUrl>
 		</Pair>
 	</StyleMap>
 	<StyleMap id="msn_wht-blank1">
@@ -1663,15 +1663,6 @@
 			<hotSpot x="20" y="2" xunits="pixels" yunits="pixels"/>
 		</IconStyle>
 	</Style>
-	<Style id="sh_pink-pushpin1">
-		<IconStyle>
-			<scale>1.3</scale>
-			<Icon>
-				<href>http://maps.google.com/mapfiles/kml/pushpin/pink-pushpin.png</href>
-			</Icon>
-			<hotSpot x="20" y="2" xunits="pixels" yunits="pixels"/>
-		</IconStyle>
-	</Style>
 	<Style id="sh_pink-pushpin10">
 		<IconStyle>
 			<scale>1.3</scale>
@@ -1802,6 +1793,20 @@
 		</ListStyle>
 	</Style>
 	<Style id="sh_wht-blank200">
+		<IconStyle>
+			<scale>1.3</scale>
+			<Icon>
+				<href>http://maps.google.com/mapfiles/kml/paddle/wht-blank.png</href>
+			</Icon>
+			<hotSpot x="32" y="1" xunits="pixels" yunits="pixels"/>
+		</IconStyle>
+		<ListStyle>
+			<ItemIcon>
+				<href>http://maps.google.com/mapfiles/kml/paddle/wht-blank-lv.png</href>
+			</ItemIcon>
+		</ListStyle>
+	</Style>
+	<Style id="sh_wht-blank2000">
 		<IconStyle>
 			<scale>1.3</scale>
 			<Icon>
@@ -2251,15 +2256,6 @@
 			<hotSpot x="20" y="2" xunits="pixels" yunits="pixels"/>
 		</IconStyle>
 	</Style>
-	<Style id="sn_pink-pushpin02">
-		<IconStyle>
-			<scale>1.1</scale>
-			<Icon>
-				<href>http://maps.google.com/mapfiles/kml/pushpin/pink-pushpin.png</href>
-			</Icon>
-			<hotSpot x="20" y="2" xunits="pixels" yunits="pixels"/>
-		</IconStyle>
-	</Style>
 	<Style id="sn_pink-pushpin1">
 		<IconStyle>
 			<scale>1.1</scale>
@@ -2358,6 +2354,20 @@
 		</ListStyle>
 	</Style>
 	<Style id="sn_wht-blank3">
+		<IconStyle>
+			<scale>1.1</scale>
+			<Icon>
+				<href>http://maps.google.com/mapfiles/kml/paddle/wht-blank.png</href>
+			</Icon>
+			<hotSpot x="32" y="1" xunits="pixels" yunits="pixels"/>
+		</IconStyle>
+		<ListStyle>
+			<ItemIcon>
+				<href>http://maps.google.com/mapfiles/kml/paddle/wht-blank-lv.png</href>
+			</ItemIcon>
+		</ListStyle>
+	</Style>
+	<Style id="sn_wht-blank31">
 		<IconStyle>
 			<scale>1.1</scale>
 			<Icon>
@@ -3155,6 +3165,32 @@
 			<styleUrl>#yellowPin001</styleUrl>
 		</Pair>
 	</StyleMap>
+	<Style id="yellowPin003">
+		<IconStyle>
+			<scale>1.1</scale>
+			<Icon>
+				<href>http://maps.google.com/mapfiles/kml/pushpin/ylw-pushpin.png</href>
+			</Icon>
+		</IconStyle>
+		<ListStyle>
+			<ItemIcon>
+				<href>http://maps.google.com/mapfiles/kml/pushpin/ylw-pushpin.png</href>
+			</ItemIcon>
+		</ListStyle>
+	</Style>
+	<Style id="yellowPin0030">
+		<IconStyle>
+			<scale>1.1</scale>
+			<Icon>
+				<href>http://maps.google.com/mapfiles/kml/pushpin/ylw-pushpin.png</href>
+			</Icon>
+		</IconStyle>
+		<ListStyle>
+			<ItemIcon>
+				<href>http://maps.google.com/mapfiles/kml/pushpin/ylw-pushpin.png</href>
+			</ItemIcon>
+		</ListStyle>
+	</Style>
 	<Style id="yellowPin0031">
 		<IconStyle>
 			<scale>1.1</scale>
@@ -3178,32 +3214,6 @@
 			<styleUrl>#yellowPin0030</styleUrl>
 		</Pair>
 	</StyleMap>
-	<Style id="yellowPin0030">
-		<IconStyle>
-			<scale>1.1</scale>
-			<Icon>
-				<href>http://maps.google.com/mapfiles/kml/pushpin/ylw-pushpin.png</href>
-			</Icon>
-		</IconStyle>
-		<ListStyle>
-			<ItemIcon>
-				<href>http://maps.google.com/mapfiles/kml/pushpin/ylw-pushpin.png</href>
-			</ItemIcon>
-		</ListStyle>
-	</Style>
-	<Style id="yellowPin003">
-		<IconStyle>
-			<scale>1.1</scale>
-			<Icon>
-				<href>http://maps.google.com/mapfiles/kml/pushpin/ylw-pushpin.png</href>
-			</Icon>
-		</IconStyle>
-		<ListStyle>
-			<ItemIcon>
-				<href>http://maps.google.com/mapfiles/kml/pushpin/ylw-pushpin.png</href>
-			</ItemIcon>
-		</ListStyle>
-	</Style>
 	<Style id="yellowPin004">
 		<IconStyle>
 			<scale>1.1</scale>
@@ -4140,13 +4150,6 @@
 					</Point>
 				</Placemark>
 				<Placemark>
-					<name>April Vets Dartmouth Crossing</name>
-					<styleUrl>#msn_pink-pushpin01</styleUrl>
-					<Point>
-						<coordinates>-63.56199510320343,44.70616868841078,0</coordinates>
-					</Point>
-				</Placemark>
-				<Placemark>
 					<name>Bird / 114 Wright Avenue Building Reno</name>
 					<styleUrl>#msn_pink-pushpin10</styleUrl>
 					<Point>
@@ -4546,7 +4549,7 @@
 					<name>Kent Summerside</name>
 					<styleUrl>#yellowPin0032</styleUrl>
 					<Point>
-						<coordinates>-63.78284996504065,46.41803703756785,0</coordinates>
+						<coordinates>-63.78284996504064,46.41803703756785,0</coordinates>
 					</Point>
 				</Placemark>
 				<Placemark>
@@ -4595,7 +4598,7 @@
 				<Placemark>
 					<name>Starbucks Commercial Street - New Minas</name>
 					<description><![CDATA[<img src="https://lh3.googleusercontent.com/pw/AP1GczMxVs4ajocIZhqk0SBYXzqNPNi5SFeuqJB3OGBShFr_Z45widugcf-dQNoFaIwuEDItrALGi7snhMPnle95hg3MgMbVvbZOf2HqgrSQrQS6ZWo1Iyja8iHvAKAH6LhMYByPt2lMnDO-rsqHUeoue4m7QQ=w1304-h869-s-no-gm?authuser=0" style="max-width:500px; height:auto;">]]></description>
-					<styleUrl>#msn_wht-blank01</styleUrl>
+					<styleUrl>#msn_wht-blank010</styleUrl>
 					<Point>
 						<coordinates>-64.44216434441839,45.06666648875927,0</coordinates>
 					</Point>
@@ -4723,7 +4726,7 @@
 				<Placemark>
 					<name>Oxygen Yoga Halifax</name>
 					<description><![CDATA[<img src="https://lh3.googleusercontent.com/pw/AP1GczOvfu87Bsv8N4h-gpd6PTa2Ol-PRgys6VOm9VbUWpFqHHAKys4x5pQDB74qehGPttMZTVJKezmLj3MaqylUkJ6K1WUwGghXLyDzHZhlhAvPxOGiLeY7N3fYgygLfet-5UgAWkM9dWk1lHCs-qEZMQc_2w=w1304-h869-s-no-gm?authuser=0" style="max-width:500px; height:auto;">]]></description>
-					<styleUrl>#msn_wht-blank01</styleUrl>
+					<styleUrl>#msn_wht-blank010</styleUrl>
 					<Point>
 						<coordinates>-63.575781,44.643872,0</coordinates>
 					</Point>
@@ -4731,7 +4734,7 @@
 				<Placemark>
 					<name>Giant Tiger Riverview</name>
 					<description><![CDATA[<img src="https://lh3.googleusercontent.com/pw/AP1GczP_lIFMe9mru0q9R25BrLOBiSxC960ed94ebyuxzg44s9LO_tN9GeDPJfavUxNmyKQapkUbIJ1o9CZ9h6ZK2tGrD5VFf-SCVStfYD1peItMuamoupADWoFmK-b9TYZhYQkdWKPU4lLd1zAYyBtz1O_d_g=w1159-h869-s-no-gm?authuser=0" style="max-width:500px; height:auto;">]]></description>
-					<styleUrl>#msn_wht-blank01</styleUrl>
+					<styleUrl>#msn_wht-blank010</styleUrl>
 					<Point>
 						<coordinates>-64.817759,46.058919,0</coordinates>
 					</Point>
@@ -4739,7 +4742,7 @@
 				<Placemark>
 					<name>Lindt Mapleton Plaza</name>
 					<description><![CDATA[<img src="https://lh3.googleusercontent.com/pw/AP1GczP4BEM31qC3HkfggCBScZN6bI8fzl-mvO4YJROnzeafWku6nWuo9euBrZwKPDLuIgJ64V-vd13FOvOLsGEbviho2EkMxcd-jqst2_ALV3qh9ILtzfcTAe1vRDUCcoNJKNI6022o_vv5s0lcGIi374nQOw=w1159-h869-s-no-gm?authuser=0" style="max-width:500px; height:auto;">]]></description>
-					<styleUrl>#msn_wht-blank01</styleUrl>
+					<styleUrl>#msn_wht-blank010</styleUrl>
 					<Point>
 						<coordinates>-64.82599999999999,46.11786,0</coordinates>
 					</Point>
@@ -4747,7 +4750,7 @@
 				<Placemark>
 					<name>Tommy Hilfiger Avalon Mall</name>
 					<description><![CDATA[<img src="https://lh3.googleusercontent.com/pw/AP1GczPU-EW5bbqxR37t8dYtMb79xKPSZDzNB6QRbHpfjOdFfmvv0f7IhNqvuxgCjujBh-pm_n7LMWoQ0COKMWUf_uf9y5fRAaFfV-uGFd3YdXexmexCCSOJbSLCjW2lvtSG5A2DUp_O-pHi4XDvLLmY23ZS4Q=w1024-h768-s-no-gm?authuser=0" style="max-width:500px; height:auto;">]]></description>
-					<styleUrl>#msn_wht-blank01</styleUrl>
+					<styleUrl>#msn_wht-blank010</styleUrl>
 					<Point>
 						<coordinates>-52.75498300000001,47.560827,0</coordinates>
 					</Point>
@@ -4755,7 +4758,7 @@
 				<Placemark>
 					<name>CAA Office Fitup Halifax</name>
 					<description><![CDATA[<img src="https://lh3.googleusercontent.com/pw/AP1GczNkrGVNlithz0lboPX1vxjBfFJ5VSdqMIsCYDIwJyMJ3bn9zF9eZ0krj9u9MJZZ-o5qT0gsyfi7HeHCt3l6jWIKlXVsRrT7hAWFWEsLiM8Z8br90IkImukohZJz5bwoKS1R57Fu1CEyWctZKgH5TjnHbQ=w1128-h768-s-no-gm?authuser=0" style="max-width:500px; height:auto;">]]></description>
-					<styleUrl>#msn_wht-blank01</styleUrl>
+					<styleUrl>#msn_wht-blank010</styleUrl>
 					<Point>
 						<coordinates>-63.673329,44.652316,0</coordinates>
 					</Point>
@@ -4763,7 +4766,7 @@
 				<Placemark>
 					<name>Melanie Lyne</name>
 					<description><![CDATA[<img src="https://lh3.googleusercontent.com/pw/AP1GczNYSksq5cFvIPfcGDk40TGCJ0ShjU5upwD_pmTn88diPkFaHsvDN8vRKYksMVm3buXH7zAKC7Nsr15IXZRFZOlasvM9TczawxoO-JHX53lLAu2RyRgK2WFjAvOPT_SWuoaYUliTW7W_y3gMWdPiK_K_2Q=w1024-h768-s-no-gm?authuser=0" style="max-width:500px; height:auto;">]]></description>
-					<styleUrl>#msn_wht-blank01</styleUrl>
+					<styleUrl>#msn_wht-blank010</styleUrl>
 					<Point>
 						<coordinates>-63.61856,44.649277,0</coordinates>
 					</Point>
@@ -4771,7 +4774,7 @@
 				<Placemark>
 					<name>Orange Theory Fitness</name>
 					<description><![CDATA[<img src="https://lh3.googleusercontent.com/pw/AP1GczMbLBY4X8y6sqGvVTMRh9aCub8mcv4d1-G_HPxF4K-RxlVRhMTwXcUGIZJGTJtc-ZVmwBCewHaKEHbBwNu3mJr1itsFAl_TiqSHgJyaXj22VHfwzClIHjp-AIN2qEXqx_nsdDMpIJZ09A-pOxPxEmSELg=w1200-h800-s-no-gm?authuser=0" style="max-width:500px; height:auto;">]]></description>
-					<styleUrl>#msn_wht-blank01</styleUrl>
+					<styleUrl>#msn_wht-blank010</styleUrl>
 					<Point>
 						<coordinates>-63.701297,44.70166,0</coordinates>
 					</Point>
@@ -4779,7 +4782,7 @@
 				<Placemark>
 					<name>The Brick Charlottetown</name>
 					<description><![CDATA[<img src="https://lh3.googleusercontent.com/pw/AP1GczN-hmCor69WpwVNLWLQUSoZSih7Qhp0X5JmuhBYOYIcpNcu3V-Vsgmq_PO1MZ11Wa-TADIfZe2V-HAUTFm12jH1oEyXszHgTzrLzH_quUiUOmvDYWZCJ6mCkIL-d4Ae9_wQkG3ipsO5HyNzERkY3qmhgw=w1152-h768-s-no-gm?authuser=0" style="max-width:500px; height:auto;">]]></description>
-					<styleUrl>#msn_wht-blank01</styleUrl>
+					<styleUrl>#msn_wht-blank010</styleUrl>
 					<Point>
 						<coordinates>-63.144841,46.266586,0</coordinates>
 					</Point>
@@ -4787,7 +4790,7 @@
 				<Placemark>
 					<name>Hospice Halifax</name>
 					<description><![CDATA[<img src="https://lh3.googleusercontent.com/pw/AP1GczMZzr2oNgpTEjaLLx5NLYKcePe3DWDjFavuJ8f4yik4vSUjlYiv_aYNK7YwZqJ-dKB51MgEH5-mT4btj8FVCABn3M32LX1oCjyewPkA4oOxrVUS-jQ0QZ3cCeG4YR26KhFdUd18GF7quOW7AoyD9DxCAw=w1024-h768-s-no-gm?authuser=0" style="max-width:500px; height:auto;">]]></description>
-					<styleUrl>#msn_wht-blank01</styleUrl>
+					<styleUrl>#msn_wht-blank010</styleUrl>
 					<Point>
 						<coordinates>-63.656958,44.759549,0</coordinates>
 					</Point>
@@ -4795,7 +4798,7 @@
 				<Placemark>
 					<name>Cannabis NB Moncton</name>
 					<description><![CDATA[<img src="https://lh3.googleusercontent.com/pw/AP1GczPmUh4s6PIatNlKyANkNqUBAjalMH099UdfVJlmvJse61ORH9H16GyjlWPlgx88a0GZftOFNR20bMYlElSeuvbpXkHkYQbEALzTkbziFHAbSlggHxOkEfspamS7XR-ASl1jtnNZK5m2ewUFoi1oNmQwTA=w1159-h869-s-no-gm?authuser=0" style="max-width:500px; height:auto;">]]></description>
-					<styleUrl>#msn_wht-blank01</styleUrl>
+					<styleUrl>#msn_wht-blank010</styleUrl>
 					<Point>
 						<coordinates>-64.766475,46.092688,0</coordinates>
 					</Point>
@@ -4803,7 +4806,7 @@
 				<Placemark>
 					<name>Centura Tile Showroom</name>
 					<description><![CDATA[<img src="https://lh3.googleusercontent.com/pw/AP1GczMzxLXJHhF3MMbfFQxKJIzKSb7d3DJuXl_iGRZsxBsPlMQFF9Dpl6tlRQmn4F6bVueIOvT1LR9wjMssVPR9LXo_TeXLm1OkzpL8AyMhhe2itJ3OBDN4tfIUhjuwl2rtzHuLzwiT78EzXF4EyZ0x06CkYA=w1152-h768-s-no-gm?authuser=0" style="max-width:500px; height:auto;">]]></description>
-					<styleUrl>#msn_wht-blank01</styleUrl>
+					<styleUrl>#msn_wht-blank010</styleUrl>
 					<Point>
 						<coordinates>-63.597664,44.702834,0</coordinates>
 					</Point>
@@ -4811,7 +4814,7 @@
 				<Placemark>
 					<name>Chill Street Brewery</name>
 					<description><![CDATA[<img src="https://lh3.googleusercontent.com/pw/AP1GczP-gqpdiHK9EQmrJ_KscnOij7lA7047VC_TgnB9-Z5EWjjRgoizdpHhmC_txuv_XbtEJgj5mSrAHri9bNvoRSGQGxCsWlJuroP4F2oAXG6YgooLTruu8g-oNV2zeF34CSOkTbIPer7jwDba4-M3fC12Bg=w1152-h768-s-no-gm?authuser=0" style="max-width:500px; height:auto;">]]></description>
-					<styleUrl>#msn_wht-blank01</styleUrl>
+					<styleUrl>#msn_wht-blank010</styleUrl>
 					<Point>
 						<coordinates>-63.505509,44.976593,0</coordinates>
 					</Point>
@@ -4819,7 +4822,7 @@
 				<Placemark>
 					<name>O’Regan’s Hillcrest Volkswagen</name>
 					<description><![CDATA[<img src="https://lh3.googleusercontent.com/pw/AP1GczPxooHLRkDAU7bHty6wQeuxysw80uVTtP0Nd-4F2pUPi9aLUG9YDEuFktiSc3RC_NnZQkaQe3Rj1b4KW-kWw6VtsnOihZhHKI63B3HXXJ3AVTMQXSqQbpNU2sVpNF_4lNRkHzN7kvHsvMv-KoD-SmQK2g=w1304-h869-s-no-gm?authuser=0" style="max-width:500px; height:auto;">]]></description>
-					<styleUrl>#msn_wht-blank01</styleUrl>
+					<styleUrl>#msn_wht-blank010</styleUrl>
 					<Point>
 						<coordinates>-63.608508,44.66045,0</coordinates>
 					</Point>
@@ -4827,7 +4830,7 @@
 				<Placemark>
 					<name>Sobeys Tacoma Store</name>
 					<description><![CDATA[<img src="https://lh3.googleusercontent.com/pw/AP1GczPYzbbRsiaqMRfMoarDnszFz9EQHTm-Edk4s0UbN0tq4u18BaqVLWOB6O9ZA9SfkNnwRbYI-MI7r7pw7n2WBtEGgpcjGKTxudfG_40A43T4hG6K3ldUCcWbYoQMlrruhroUmCQaAYO7l9o3PAMz3jV4kQ=w1159-h869-s-no-gm?authuser=0" style="max-width:500px; height:auto;">]]></description>
-					<styleUrl>#msn_wht-blank01</styleUrl>
+					<styleUrl>#msn_wht-blank010</styleUrl>
 					<Point>
 						<coordinates>-63.537843,44.679456,0</coordinates>
 					</Point>
@@ -4843,7 +4846,7 @@
 				<Placemark>
 					<name>Halifax Seaport Farmers’ Market</name>
 					<description><![CDATA[<img src="https://lh3.googleusercontent.com/pw/AP1GczMIlSyIBOxiBgdve0JxeTtrEY-nZaswuAt0vNeMpQagQXPywDSWRTQCiI2DXSNRaVzKZaqxSjQ_FGJvstY92XhdBi1wQcJ4qVUUWkz19eu4ImYySIZJYyRGugLyp78hgarQbkk94WB52ntZK6ri9TYd_g=w1200-h798-s-no-gm?authuser=0" style="max-width:500px; height:auto;">]]></description>
-					<styleUrl>#msn_wht-blank01</styleUrl>
+					<styleUrl>#msn_wht-blank010</styleUrl>
 					<Point>
 						<coordinates>-63.565745,44.63633,0</coordinates>
 					</Point>
@@ -4851,7 +4854,7 @@
 				<Placemark>
 					<name>Goobies Irving Big Stop</name>
 					<description><![CDATA[<img src="https://lh3.googleusercontent.com/pw/AP1GczMB3XnsR6jAO1PPMl3FiuGS6kT0Lux_tJgC-tzlooRTCOuiOkfH_g8zEqdtj_wKrtgXYpEQg5jgmvA74GGn7jibrjjEzYQdV_6OaCsYDOvMU_R58cdRqpKFyDt-vlMVBs-EdidbqgldXhXRFxLBZWlW7A=w1159-h869-s-no-gm?authuser=0" style="max-width:500px; height:auto;">]]></description>
-					<styleUrl>#msn_wht-blank01</styleUrl>
+					<styleUrl>#msn_wht-blank010</styleUrl>
 					<Point>
 						<coordinates>-53.950833,47.945702,0</coordinates>
 					</Point>
@@ -4859,7 +4862,7 @@
 				<Placemark>
 					<name>Superstore Mobile Shop Truro</name>
 					<description><![CDATA[<img src="https://lh3.googleusercontent.com/pw/AP1GczNrtmjzTvgxSyNTV_q7Jh4KgV4DRY7FwGwfHf2Rn3lHpxPphrRHp8ZPlTKYxbScDlB8SF5uKezqVnkQv36E1409Z08Wd4z9XKFFSu2x3m6ginYhiq0GPMh63nTm-5gRyj-sKtrDxDCHv24M2RvMtL73xQ=w1154-h869-s-no-gm?authuser=0" style="max-width:500px; height:auto;">]]></description>
-					<styleUrl>#msn_wht-blank01</styleUrl>
+					<styleUrl>#msn_wht-blank010</styleUrl>
 					<Point>
 						<coordinates>-63.288672,45.366997,0</coordinates>
 					</Point>
@@ -4867,7 +4870,7 @@
 				<Placemark>
 					<name>long and mcquade halifax</name>
 					<description><![CDATA[<img src="https://lh3.googleusercontent.com/pw/AP1GczP_NTZ-forhm2L2AKjvYeJ3mfFiZIMc5NLuKk4q-cQ4GaNFuKjRBz1kXBkIfKsAAmcbaIRw3zKX-oqHJBjQstohKncAHM2mgiJvyHZy09pNbfm2rghZ3ePYJggMTXKw6x8Tv6sIyu_qlNasSHU9pupHvQ=w1156-h868-s-no-gm?authuser=0" style="height:700px; width:auto;">]]></description>
-					<styleUrl>#msn_wht-blank01</styleUrl>
+					<styleUrl>#msn_wht-blank010</styleUrl>
 					<Point>
 						<coordinates>-63.560773,44.714106,0</coordinates>
 					</Point>
@@ -4875,7 +4878,7 @@
 				<Placemark>
 					<name>Quiznos - Sandwich shop</name>
 					<description><![CDATA[<img src="https://lh3.googleusercontent.com/pw/AP1GczOhZ8MPs7t59Sl-MkKXdk-NFqhpnYFiHENEvNsAIU0eNPGnHCIYOXe1iClLkYo8k7PxD-6F0o_2_rcVJzsFLpByNygtL75d7J9gc7hcmGSS_OIMT2THUMsx_dWayoQQPwmNYPaF9_r_M9auU-VvVYpFNQ=w1301-h868-s-no-gm?authuser=0" style="height:700px; width:auto;">]]></description>
-					<styleUrl>#msn_wht-blank01</styleUrl>
+					<styleUrl>#msn_wht-blank010</styleUrl>
 					<Point>
 						<coordinates>-63.56319199999999,44.706195,0</coordinates>
 					</Point>
@@ -4883,7 +4886,7 @@
 				<Placemark>
 					<name>Starbucks Coffee</name>
 					<description><![CDATA[<img src="https://lh3.googleusercontent.com/pw/AP1GczOW8HCnKjjhelo2U77KTJDtKLLq68UIhi-LSLpFB24eTvqgUK-QT7h1pNYvWqTv6B-EmtE21x8vQ1M3do6l2M7YkpSSfSPUhkskJ77-5GefREaTZsA3sfzodPKrFS7hZFQoqHP4AxYwpS1OfcTBNOwsuQ=w408-h408-s-no-gm?authuser=0" style="height:700px; width:auto;">]]></description>
-					<styleUrl>#msn_wht-blank01</styleUrl>
+					<styleUrl>#msn_wht-blank010</styleUrl>
 					<Point>
 						<coordinates>-63.563267,44.706057,0</coordinates>
 					</Point>
@@ -4971,7 +4974,7 @@
 				<Placemark>
 					<name>pier 1 imports dartmouth</name>
 					<description><![CDATA[<img src="https://lh3.googleusercontent.com/pw/AP1GczNXVvH64JV7fFSJcH0nhsRUQiirylpFZtA7rZymqcsyONW235tFsKiffqq2S81fifkQcnhiztwtF22Got0xIityhezhcO156uPooHIXiQ2jTghQhCU5kSFNC7Aix2NzFCTSYIhFLqVYUadgm0PiVOt0Kw=w1198-h773-s-no-gm?authuser=0" style="max-width:500px; height:auto;">]]></description>
-					<styleUrl>#msn_wht-blank01</styleUrl>
+					<styleUrl>#msn_wht-blank010</styleUrl>
 					<Point>
 						<coordinates>-63.561674,44.706621,0</coordinates>
 					</Point>
@@ -4979,7 +4982,7 @@
 				<Placemark>
 					<name>Pro Hockey Life</name>
 					<description><![CDATA[<img src="https://lh3.googleusercontent.com/pw/AP1GczOBcC85Nd3XpVasYIzGX0eGhubiYNP4OE_9VwqBimWJKzkaOx0EGZ6iaP6A76vGFnlKcyYMXK7U8AmhA2dT7ZuvU3D6Gnog6SjjNpFXr6OQx56wyEurtIbFcrKoZgCaeMfQRWHg0C6zNfpwa7cVVBbR-w=w800-h534-s-no-gm?authuser=0" style="max-width:500px; height:auto;">]]></description>
-					<styleUrl>#msn_wht-blank01</styleUrl>
+					<styleUrl>#msn_wht-blank010</styleUrl>
 					<Point>
 						<coordinates>-63.560467,44.706373,0</coordinates>
 					</Point>
@@ -4987,7 +4990,7 @@
 				<Placemark>
 					<name>Vero Pizzeria</name>
 					<description><![CDATA[<img src="https://lh3.googleusercontent.com/pw/AP1GczOa7zbHMYb0Os8v9wvakqRFMAwikcVzqn94ojFGOB-6PZWHWyx-ovl98mZTJ7sETxxP_tw3URHQ9BlWaHseynIPYVawzCYKlAYQdXsiNm5-46PLgVMtX1jBjq8sNX9nKhSlE6w47D9UAUummq1f5-gVgg=w512-h384-s-no-gm?authuser=0" style="max-width:500px; height:auto;">]]></description>
-					<styleUrl>#msn_wht-blank01</styleUrl>
+					<styleUrl>#msn_wht-blank010</styleUrl>
 					<Point>
 						<coordinates>-63.561505,44.705036,0</coordinates>
 					</Point>
@@ -4995,7 +4998,7 @@
 				<Placemark>
 					<name>Ela! Greek Taverna</name>
 					<description><![CDATA[<img src="https://lh3.googleusercontent.com/pw/AP1GczM8nsFeanSzKquO4bKuMr22AZuVrD6CKzDp67Nl4vz8BtOKlo0ts9adpLnc2AF05Ttpy8C5KZW5uqKB4yyfu4n7X6D0ZvG-tGI5k9GLTqxhoBHhcFfYAPUzLQJa2OnueDxGY00gtpnqKMT2GsNyWmb78g=w550-h413-s-no-gm?authuser=0" style="max-width:500px; height:auto;">]]></description>
-					<styleUrl>#msn_wht-blank01</styleUrl>
+					<styleUrl>#msn_wht-blank010</styleUrl>
 					<Point>
 						<coordinates>-63.56158800000001,44.704906,0</coordinates>
 					</Point>
@@ -5003,7 +5006,7 @@
 				<Placemark>
 					<name>Lindt Chocolate Shop</name>
 					<description><![CDATA[<img src="https://lh3.googleusercontent.com/pw/AP1GczN9aR4FGyktUqgg_4Cch3-OxzHNkc2145eUlCdWILZwHZauIsVBzDOdRm89vF1ky-PPny1hymmrNiugxpm4ZpZKIpv21BIvy03J6QFUZsKPmsCyyoCjKzfLqcGlvoOwZuUIcnkDGsSaBLafcVcVPHMjow=w943-h566-s-no-gm?authuser=0" style="max-width:500px; height:auto;">]]></description>
-					<styleUrl>#msn_wht-blank01</styleUrl>
+					<styleUrl>#msn_wht-blank010</styleUrl>
 					<Point>
 						<coordinates>-63.566803,44.701507,0</coordinates>
 					</Point>
@@ -5011,7 +5014,7 @@
 				<Placemark>
 					<name>Mastermind Toys</name>
 					<description><![CDATA[<img src="https://lh3.googleusercontent.com/pw/AP1GczMzhL-_qLc6s0r_BxgPk_1t9Y4huKQ2KkYdN89mwaRwh4Q-LEgXR3K3Hr6gtVfC7thmrYcIEhD5aePEbYj95zRK2-Jzv3f4Cp1AOvQ98hnP3_QYQNHesggwVt_dS7Cyuaimw3I28InIjbXWtppFCROQNA=w1000-h750-s-no-gm?authuser=0" style="max-width:500px; height:auto;">]]></description>
-					<styleUrl>#msn_wht-blank01</styleUrl>
+					<styleUrl>#msn_wht-blank010</styleUrl>
 					<Point>
 						<coordinates>-63.56676599999999,44.701326,0</coordinates>
 					</Point>
@@ -5019,7 +5022,7 @@
 				<Placemark>
 					<name>Bouclair</name>
 					<description><![CDATA[<img src="https://lh3.googleusercontent.com/pw/AP1GczMh1VwMZE35dboxgRR17XtGR44PxqP0DY8FWmNbCGZGEDQ3lGnupD4WFT2apCB-gvx6nEE1fThDhdJ8XLumx_6cuulGfoSBavSofa4gW1NCsInG2mXiVvuOAe0AqzCSeKryK_zwEfuhsh1fe6NznKpjtQ=w348-h348-s-no-gm?authuser=0" style="max-width:500px; height:auto;">]]></description>
-					<styleUrl>#msn_wht-blank01</styleUrl>
+					<styleUrl>#msn_wht-blank010</styleUrl>
 					<Point>
 						<coordinates>-63.56361500000001,44.696793,0</coordinates>
 					</Point>
@@ -5027,7 +5030,7 @@
 				<Placemark>
 					<name>Dartmouth Crossing</name>
 					<description><![CDATA[<img src="https://lh3.googleusercontent.com/pw/AP1GczPDm4WSorpbvcS79RA06KK0CPtypLQmrmWSrdHcFLCUpMhkX8lagGkw29N50x-3ZDsLa2WY0WxjPg5I44VKOEoYGdz3HUNnqjq8elQPUnnODrNlkOEYDJHHcz1DSqGMqs0k99l9kK8bVDsckrNa-549mg=w1384-h678-s-no-gm?authuser=0" style="max-width:500px; height:auto;">]]></description>
-					<styleUrl>#msn_wht-blank01</styleUrl>
+					<styleUrl>#msn_wht-blank010</styleUrl>
 					<Point>
 						<coordinates>-63.563836,44.69902,0</coordinates>
 					</Point>
@@ -5035,7 +5038,7 @@
 				<Placemark>
 					<name>No Frills New Store</name>
 					<description><![CDATA[<img src="https://lh3.googleusercontent.com/pw/AP1GczMC5wcy78r_MtnEXCq_M1y_iDy_nCAt4P-bRQwkaYiIIB0OCzHL1AdPjcS6rfJTs3MnaAhtHMmjSCMyALkFqD_0h_We6b8LSOjzF7y3-WVuRiIw5jc6ia6hb3qJB1SmTdr8haVx6VdX04LPShfSBFKeLQ=w1335-h868-s-no-gm?authuser=0" style="max-width:500px; height:auto;">]]></description>
-					<styleUrl>#msn_wht-blank01</styleUrl>
+					<styleUrl>#msn_wht-blank010</styleUrl>
 					<Point>
 						<coordinates>-52.751869,47.534658,0</coordinates>
 					</Point>
@@ -5051,7 +5054,7 @@
 				<Placemark>
 					<name>Starbucks Elmsdale</name>
 					<description><![CDATA[<img src="https://lh3.googleusercontent.com/pw/AP1GczNtNvbi0MSHOPd9T5SMGgh16a44NQKqf8cJFJy60VLMLO9UNJ2EFfe2oK8Qu0zAamaLbdKU0gV7qsLlNPx0Y65NUMuL2R388G_pvmQvI-GXQzN_5RLmvPetDgMJwYFWnEyH3k0t5mthoWXVodMXnYWE-g=w1371-h868-s-no-gm?authuser=0" style="max-width:500px; height:auto;">]]></description>
-					<styleUrl>#msn_wht-blank01</styleUrl>
+					<styleUrl>#msn_wht-blank010</styleUrl>
 					<Point>
 						<coordinates>-63.50682400000001,44.975218,0</coordinates>
 					</Point>
@@ -5059,7 +5062,7 @@
 				<Placemark>
 					<name>Glo Braces Truro</name>
 					<description><![CDATA[<img src="https://lh3.googleusercontent.com/pw/AP1GczMZvyekkqExF11Zm17QDtNsuU-wgnW6LepxnTj3DvpqgSP8COd2lDkcQTito9QKBiTPMuwlNGzOshVakX-kL9u0qDrzbCJEgrze_A02djLjwF7bv2nxoQ4ViGPGrnZKgiZsr-MrfDeRMwzZp3wU18duug=w1301-h868-s-no-gm?authuser=0" style="max-width:500px; height:auto;">]]></description>
-					<styleUrl>#msn_wht-blank01</styleUrl>
+					<styleUrl>#msn_wht-blank010</styleUrl>
 					<Point>
 						<coordinates>-63.303392,45.37077,0</coordinates>
 					</Point>
@@ -5067,9 +5070,17 @@
 				<Placemark>
 					<name>Kent Summerside</name>
 					<description><![CDATA[<img src="https://lh3.googleusercontent.com/pw/AP1GczNI5xFNR0sSgRaExMy76fM2F54Rwvhyf9mSeD9XBWNX-9n2WD1F-L4FtE1JRtoqq0jAmP1YZYfj30FIpCDABxL456XUOBIvjNCblHU1e4rpaY-k-F8W56jmXlBCeS4FsImnBZyp5fAgZ-i3rNR8r8mmoQ=w1543-h868-s-no-gm?authuser=0" style="max-width:500px; height:auto;">]]></description>
-					<styleUrl>#msn_wht-blank01</styleUrl>
+					<styleUrl>#msn_wht-blank010</styleUrl>
 					<Point>
 						<coordinates>-63.782441,46.418332,0</coordinates>
+					</Point>
+				</Placemark>
+				<Placemark>
+					<name>AprilVets Dartmouth Crossing</name>
+					<description><![CDATA[<img src="https://lh3.googleusercontent.com/pw/AP1GczNO81v6cnJtwwXcLv4YT8QZHG4wVYkvHLJnKEEnYxdjE6ZoPmtWPbEq57QQnM-qdoRu0VattX2g7ODKuYys07d6C0-DhrCaA6oMOPa2P-aUToc1arNva4ctANQrltX8Rn2DtSmMKbvxGcYTh-F5TT1FuA=w1164-h873-s-no-gm?authuser=0" style="max-width:500px; height:auto;">]]></description>
+					<styleUrl>#msn_wht-blank01</styleUrl>
+					<Point>
+						<coordinates>-63.56198822663192,44.70616682192778,0</coordinates>
 					</Point>
 				</Placemark>
 			</Folder>
