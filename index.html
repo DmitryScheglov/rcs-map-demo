@@ -190,7 +190,7 @@
     // =========================
     let map;
     let infoWindow;
-    let kmlLayer;
+    let projectMarkers = [];
 
     // { name, lat, lng, descriptionHtml, iconHref, categoryPath }
     let allPlacemarks = [];
@@ -217,18 +217,40 @@
 
       infoWindow = new google.maps.InfoWindow({ maxWidth: 1050 });
 
-      kmlLayer = new google.maps.KmlLayer({
-        url: toAbsoluteUrl(KML_URL),
-        map: map,
-        preserveViewport: false,
-        suppressInfoWindows: true
-      });
-
-      kmlLayer.addListener("click", (event) => {
-        openPopup(event.featureData.name, event.featureData.infoWindowHtml, event.latLng);
-      });
+      // KmlLayer was removed in Maps JavaScript API v3.66.
+      // We load the same KML directly and render its placemarks as markers.
 
       fetchAndBuildMenu();
+    }
+
+    // =========================
+    // PROJECT MARKERS (no deprecated KmlLayer)
+    // =========================
+    function renderProjectMarkers(places) {
+      projectMarkers.forEach(marker => marker.setMap(null));
+      projectMarkers = [];
+      const bounds = new google.maps.LatLngBounds();
+      for (const place of places) {
+        const position = { lat: place.lat, lng: place.lng };
+        const opts = { map, position, title: place.name };
+        if (place.iconHref) {
+          opts.icon = {
+            url: place.iconHref.replace(/^http:\/\//i, "https://"),
+            scaledSize: new google.maps.Size(32, 32)
+          };
+        }
+        const marker = new google.maps.Marker(opts);
+        marker.addListener("click", () => openPopup(place.name, place.descriptionHtml, position));
+        projectMarkers.push(marker);
+        bounds.extend(position);
+      }
+      if (projectMarkers.length) {
+        map.fitBounds(bounds);
+        // Avoid zooming too far in if only one project is present.
+        google.maps.event.addListenerOnce(map, "idle", () => {
+          if (map.getZoom() > 15) map.setZoom(15);
+        });
+      }
     }
 
     // =========================
@@ -279,6 +301,7 @@
         allPlacemarks = placemarks;
         grouped = groupByCategory(allPlacemarks);
         renderGroupedList(grouped);
+        renderProjectMarkers(allPlacemarks);
 
         const searchBox = document.getElementById("searchBox");
         searchBox.addEventListener("input", () => {
@@ -293,6 +316,7 @@
 
       } catch (err) {
         console.error(err);
+        document.getElementById("list").textContent = "Could not load projects: " + err.message;
         alert(
           "Menu build failed.\n\n" +
           "Most common reasons:\n" +
@@ -474,7 +498,7 @@
 
       if (item.iconHref) {
         const img = document.createElement("img");
-        img.src = item.iconHref;
+        img.src = item.iconHref.replace(/^http:\/\//i, "https://");
         img.alt = "";
         iconWrap.appendChild(img);
       } else {
